@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The middle of the remote. PadLayout places and sizes these (the layout_ sizes here are ignored) and shows the
+     ones the mode needs. Their order here is TalkBack's reading order. -->
+<app.libremotetvservice.ui.PadLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/pad"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Full mode only, above the D-pad: the less common keys, icons only (the Remote guide names them). -->
+    <LinearLayout
+        android:id="@+id/extraKeys"
+        style="@style/Libremote.KeyRow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+
+        <ImageButton
+            android:id="@+id/extraSearch"
+            style="@style/Libremote.ExtraKey"
+            android:contentDescription="@string/key_search"
+            android:src="@drawable/ic_search" />
+
+        <ImageButton
+            android:id="@+id/extraCaptions"
+            style="@style/Libremote.ExtraKey"
+            android:contentDescription="@string/key_captions"
+            android:src="@drawable/ic_closed_caption" />
+
+        <ImageButton
+            android:id="@+id/extraInfo"
+            style="@style/Libremote.ExtraKey"
+            android:contentDescription="@string/key_info"
+            android:src="@drawable/ic_info" />
+
+        <ImageButton
+            android:id="@+id/extraApps"
+            style="@style/Libremote.ExtraKey"
+            android:contentDescription="@string/key_apps"
+            android:src="@drawable/ic_apps" />
+
+        <ImageButton
+            android:id="@+id/extraGuide"
+            style="@style/Libremote.ExtraKey"
+            android:contentDescription="@string/key_guide"
+            android:src="@drawable/ic_live_tv" />
+
+        <ImageButton
+            android:id="@+id/extraSettings"
+            style="@style/Libremote.ExtraKey"
+            android:contentDescription="@string/key_settings"
+            android:src="@drawable/ic_tv_settings" />
+
+        <ImageButton
+            android:id="@+id/extraInput"
+            style="@style/Libremote.ExtraKey"
+            android:contentDescription="@string/key_input"
+            android:src="@drawable/ic_input" />
+    </LinearLayout>
+
+    <!-- Left: volume. -->
+    <LinearLayout
+        android:id="@+id/volumeColumn"
+        style="@style/Libremote.KeyColumn"
+        android:layout_width="56dp"
+        android:layout_height="192dp">
+
+        <ImageButton
+            android:id="@+id/volumeUp"
+            style="@style/Libremote.ColumnButton"
+            android:contentDescription="@string/key_volume_up"
+            android:src="@drawable/ic_volume_up" />
+
+        <ImageButton
+            android:id="@+id/mute"
+            style="@style/Libremote.ColumnButton"
+            android:contentDescription="@string/key_mute"
+            android:src="@drawable/ic_volume_off" />
+
+        <ImageButton
+            android:id="@+id/volumeDown"
+            style="@style/Libremote.ColumnButton"
+            android:contentDescription="@string/key_volume_down"
+            android:src="@drawable/ic_volume_down" />
+    </LinearLayout>
+
+    <app.libremotetvservice.ui.DpadView
+        android:id="@+id/dpad"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <app.libremotetvservice.ui.TouchpadView
+        android:id="@+id/touchpad"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <!-- Right: the TV's own keys, set per TV in RemoteActivity.showKind (channels on a TV, Search and Apps on a box). -->
+    <LinearLayout
+        android:id="@+id/keyColumn"
+        style="@style/Libremote.KeyColumn"
+        android:layout_width="56dp"
+        android:layout_height="192dp">
+
+        <ImageButton
+            android:id="@+id/keyTop"
+            style="@style/Libremote.ColumnButton"
+            android:contentDescription="@string/key_channel_up"
+            android:src="@drawable/ic_add" />
+
+        <ImageButton
+            android:id="@+id/keyMenu"
+            style="@style/Libremote.ColumnButton"
+            android:contentDescription="@string/key_menu"
+            android:src="@drawable/ic_menu" />
+
+        <ImageButton
+            android:id="@+id/keyBottom"
+            style="@style/Libremote.ColumnButton"
+            android:contentDescription="@string/key_channel_down"
+            android:src="@drawable/ic_remove" />
+    </LinearLayout>
+
+    <!-- Full mode only: a short touchpad under the D-pad. -->
+    <app.libremotetvservice.ui.TouchpadView
+        android:id="@+id/strip"
+        android:layout_width="match_parent"
+        android:layout_height="96dp"
+        android:visibility="gone" />
+</app.libremotetvservice.ui.PadLayout>

@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Root of the Libremote.* widget styles below. -->
+    <style name="Libremote" />
+
+    <!-- Big round remote buttons: Back, Home, Keyboard. -->
+    <style name="Libremote.Round">
+        <item name="android:layout_width">64dp</item>
+        <item name="android:layout_height">64dp</item>
+        <item name="android:background">@drawable/bg_round</item>
+        <item name="android:tint">@color/on_surface</item>
+        <item name="android:scaleType">center</item>
+    </style>
+
+    <!-- Buttons inside a pill: volume and playback. -->
+    <style name="Libremote.PillButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">56dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:background">@drawable/bg_pill_button</item>
+        <item name="android:tint">@color/on_surface</item>
+        <item name="android:scaleType">center</item>
+    </style>
+
+    <!-- The remote's columns beside the pad (volume; channels or Search and Apps): keys stacked in a pill. -->
+    <style name="Libremote.KeyColumn">
+        <item name="android:orientation">vertical</item>
+        <item name="android:background">@drawable/bg_pill</item>
+    </style>
+
+    <!-- A key in a column. PadLayout gives the column its height, which the keys share. -->
+    <style name="Libremote.ColumnButton">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:background">@drawable/bg_pill_button</item>
+        <item name="android:tint">@color/on_surface</item>
+        <item name="android:scaleType">center</item>
+    </style>
+
+    <!-- Full mode's extra keys: one pill of icon-only keys, a little lower than the playback row. -->
+    <style name="Libremote.KeyRow">
+        <item name="android:orientation">horizontal</item>
+        <item name="android:background">@drawable/bg_pill</item>
+    </style>
+
+    <style name="Libremote.ExtraKey">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:background">@drawable/bg_pill_button</item>
+        <item name="android:tint">@color/on_surface</item>
+        <item name="android:scaleType">center</item>
+    </style>
+
+    <!-- The Full / D-pad / Touchpad switch: 48 dp tall to touch, with the highlight drawn 4 dp inside. -->
+    <style name="Libremote.ModeSegment">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:background">@drawable/bg_segment_item</item>
+        <item name="android:drawablePadding">6dp</item>
+        <item name="android:drawableTint">@color/on_surface</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">18dp</item>
+        <item name="android:textColor">@color/on_surface</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="Libremote.Icon">
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:background">@drawable/bg_borderless</item>
+        <item name="android:tint">@color/on_surface</item>
+        <item name="android:scaleType">center</item>
+    </style>
+
+    <style name="Libremote.Title">
+        <item name="android:textColor">@color/on_surface</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="Libremote.Section">
+        <item name="android:textColor">@color/accent</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:paddingTop">24dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:paddingStart">4dp</item>
+    </style>
+
+    <style name="Libremote.Body">
+        <item name="android:textColor">@color/on_surface_muted</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:lineSpacingMultiplier">1.15</item>
+    </style>
+
+    <!-- Filled and tonal text buttons. -->
+    <style name="Libremote.Button">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:minWidth">88dp</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingEnd">24dp</item>
+        <item name="android:background">@drawable/bg_button</item>
+        <item name="android:textColor">@color/on_accent</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="Libremote.Button.Tonal">
+        <item name="android:background">@drawable/bg_button_tonal</item>
+        <item name="android:textColor">@color/on_accent_container</item>
+    </style>
+
+    <style name="Libremote.Button.Text">
+        <item name="android:background">@drawable/bg_text_button</item>
+        <item name="android:textColor">@color/accent</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+    </style>
+
+    <style name="Libremote.DialogButton" parent="@android:style/Widget.Material.Button.Borderless.Colored">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="Libremote.Switch">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">56dp</item>
+        <item name="android:paddingStart">4dp</item>
+        <item name="android:textColor">@color/on_surface</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:switchPadding">16dp</item>
+    </style>
+
+    <!-- Six share the dialog width, so the code fits on narrow phones. -->
+    <style name="Libremote.CodeBox">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">56dp</item>
+        <item name="android:layout_marginStart">3dp</item>
+        <item name="android:layout_marginEnd">3dp</item>
+        <item name="android:background">@drawable/bg_code_box</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/on_surface</item>
+        <item name="android:textSize">26sp</item>
+        <item name="android:fontFamily">monospace</item>
+    </style>
+
+    <!-- Shortcuts, About this TV, Remote guide -->
+
+    <!-- A small heading inside a section, such as above a row of choices. -->
+    <style name="Libremote.Label">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingStart">4dp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">6dp</item>
+        <item name="android:textColor">@color/on_surface</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <!-- A Settings row that opens another page: icon, title and summary, chevron. The parts are not child styles:
+         Libremote.SettingLink.Icon would inherit the whole row (its height, padding, background, clickability). -->
+    <style name="Libremote.SettingLink">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">64dp</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingStart">4dp</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:background">@drawable/bg_text_button</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <style name="Libremote.SettingLinkIcon">
+        <item name="android:layout_width">24dp</item>
+        <item name="android:layout_height">24dp</item>
+        <item name="android:layout_marginEnd">20dp</item>
+        <item name="android:tint">@color/on_surface_muted</item>
+    </style>
+
+    <style name="Libremote.SettingLinkTitle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/on_surface</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="Libremote.SettingLinkSummary">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/on_surface_muted</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="Libremote.SettingLinkChevron">
+        <item name="android:layout_width">24dp</item>
+        <item name="android:layout_height">24dp</item>
+        <item name="android:src">@drawable/ic_chevron_right</item>
+        <item name="android:tint">@color/on_surface_muted</item>
+    </style>
+
+    <!-- A row of choices (segmented control), filled in code; like the remote's D-pad / Touchpad switch. -->
+    <style name="Libremote.Segments">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:background">@drawable/bg_segment</item>
+        <item name="android:padding">4dp</item>
+    </style>
+</resources>

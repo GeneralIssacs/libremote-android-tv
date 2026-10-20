@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- The encrypted channel to paired phones on the local network, while the receiver is open. Nothing else. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Opens a received APK in the system installer, which still asks before installing anything. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <!-- Android 8 and 9 only: saving received files in Download/Libremote. From Android 10, MediaStore needs no
+         permission for that. -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="true" />
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
+
+    <!-- The apps a phone can open (libremote://launch) and see in the app list: launchable ones only, rather than
+         every installed package. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+
+    <application
+        android:name=".ReceiverApplication"
+        android:allowBackup="false"
+        android:banner="@drawable/banner"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Receiver"
+        android:usesCleartextTraffic="false"
+        tools:targetApi="36">
+
+        <activity
+            android:name=".ReceiveActivity"
+            android:exported="true"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+            <!-- Libremote on the phone opens the receiver with this link, through the TV's remote service, which
+                 starts it with ACTION_VIEW and no package. The link also pairs the phone. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="receive"
+                    android:scheme="libremote" />
+            </intent-filter>
+        </activity>
+        <!-- libremote://sync: listens for a moment, over whatever the TV shows, so a phone can fetch the app list;
+             then the TV goes back to what it was showing. Its own task, so the receiver screen stays out of it. -->
+        <activity
+            android:name=".SyncActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@style/Theme.Receiver.Overlay">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="sync"
+                    android:scheme="libremote" />
+            </intent-filter>
+        </activity>
+        <!-- libremote://launch?id=<package>&name=<name>: opens that app for a phone's shortcut, without a window
+             of its own. -->
+        <activity
+            android:name=".LaunchActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="launch"
+                    android:scheme="libremote" />
+            </intent-filter>
+        </activity>
+        <!-- Says over whatever the TV shows that a shortcut's app isn't installed (TVs without the Play Store). -->
+        <activity
+            android:name=".MissingAppActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@style/Theme.Receiver.Overlay" />
+
+        <!-- Android 8 and 9: lets the installer or a player read the one received file it is asked to open. -->
+        <provider
+            android:name=".FilesProvider"
+            android:authorities="${applicationId}.files"
+            android:exported="false"
+            android:grantUriPermissions="true" />
+    </application>
+</manifest>

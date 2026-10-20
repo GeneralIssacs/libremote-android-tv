@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A button on the receiver screen: highlighted when the D-pad focuses it. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_focused="true">
+        <shape>
+            <corners android:radius="24dp" />
+            <solid android:color="@color/accent_container" />
+        </shape>
+    </item>
+    <item>
+        <shape>
+            <corners android:radius="24dp" />
+            <solid android:color="@color/surface_high" />
+        </shape>
+    </item>
+</selector>

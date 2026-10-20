@@ -1,0 +1,1 @@
+First public release: encrypted file receiving from paired phones only, automatic pairing through the TV's remote connection, opening apps for Libremote's shortcuts, the TV's app list with icons, and an optional automatic installer for APKs you send.

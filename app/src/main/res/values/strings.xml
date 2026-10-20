@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Libremote</string>
+
+    <!-- TV list -->
+    <string name="devices_title">Your TVs</string>
+    <string name="devices_nearby">Nearby</string>
+    <string name="devices_searching">Looking for TVs on your Wi-Fi…</string>
+    <string name="devices_empty_title">No TVs found yet</string>
+    <string name="devices_empty_text">Turn the TV on and make sure it is on the same Wi-Fi network as this phone. Android TV and Google TV devices show up here.</string>
+    <string name="devices_add_by_address">Add by IP address</string>
+    <string name="devices_tap_to_pair">Tap to pair</string>
+    <string name="devices_online">Nearby · %1$s</string>
+    <string name="devices_offline">Last seen at %1$s</string>
+    <string name="devices_privacy">No accounts, no ads, no tracking. Libremote talks only to your TV, and to GitHub if you check for updates.</string>
+    <string name="devices_rename">Rename</string>
+    <string name="devices_forget">Forget</string>
+    <string name="devices_forget_title">Forget %1$s?</string>
+    <string name="devices_forget_text">You will need to pair again to control it from this phone.</string>
+    <string name="settings">Settings</string>
+
+    <!-- Add by address -->
+    <string name="address_title">Add a TV by address</string>
+    <string name="address_text">Find the address on the TV under Settings › Network &amp; Internet, then select your network.</string>
+    <string name="address_hint">For example 192.168.1.20</string>
+    <string name="address_invalid">That doesn\'t look like an IP address.</string>
+    <string name="address_pair">Pair</string>
+
+    <!-- Pairing -->
+    <string name="pair_title">Pair with %1$s</string>
+    <string name="pair_connecting">Asking the TV for a code…</string>
+    <string name="pair_slow">Still waiting for the TV. After several wrong codes, a TV pauses pairing for a while: wait a minute, then try again.</string>
+    <string name="pair_enter_code">Enter the code shown on your TV.</string>
+    <string name="pair_code_description">Pairing code</string>
+    <string name="pair_wrong_code">That code doesn\'t match. Check it on the TV and try again.</string>
+    <string name="pair_verifying">Pairing…</string>
+    <string name="pair_rejected">The TV didn\'t accept that code. Let\'s get a new one.</string>
+    <string name="pair_cancelled">Pairing was cancelled on the TV.</string>
+    <string name="pair_unreachable">Couldn\'t reach the TV. Check that it is on and on the same Wi-Fi as this phone.</string>
+    <string name="pair_failed">Pairing failed: %1$s</string>
+    <string name="pair_retry">Try again</string>
+    <string name="pair_button">Pair</string>
+    <string name="paired">Paired with %1$s</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="save">Save</string>
+
+    <!-- Remote -->
+    <string name="status_connecting">Connecting…</string>
+    <string name="status_reconnecting">Reconnecting…</string>
+    <string name="status_connected">Connected</string>
+    <string name="status_connected_app">Connected · %1$s</string>
+    <string name="status_screen_off">Screen off</string>
+    <string name="status_offline">Not connected</string>
+    <string name="switch_tv">Switch TV</string>
+    <string name="add_tv">Add a TV</string>
+
+    <string name="problem_unreachable_title">Can\'t reach %1$s</string>
+    <string name="problem_unreachable_text">Check that the TV is on and connected to the same Wi-Fi as this phone.</string>
+    <string name="problem_not_paired_title">%1$s doesn\'t recognise this phone</string>
+    <string name="problem_not_paired_text">It may have been removed in the TV\'s settings. Pair again to keep using it.</string>
+    <string name="problem_identity_title">%1$s has a new identity</string>
+    <string name="problem_identity_text">This happens after the TV is reset, or if a different device now uses its address. Pair again if this is your TV.</string>
+    <string name="problem_refused_title">%1$s ended the connection</string>
+    <string name="problem_refused_text">The TV reported an error. Libremote will try again.</string>
+    <string name="retry">Retry</string>
+    <string name="retrying_in">Retrying in %1$d s</string>
+    <string name="pair_again">Pair again</string>
+
+    <string name="mode_full">Full</string>
+    <string name="mode_dpad">D-pad</string>
+    <string name="mode_touchpad">Touchpad</string>
+    <string name="touchpad_hint">Swipe to move · Tap to select · Hold for options</string>
+    <string name="strip">Swipe strip</string>
+    <string name="strip_hint">Swipe to move · Tap for OK</string>
+
+    <string name="key_up">Up</string>
+    <string name="key_down">Down</string>
+    <string name="key_left">Left</string>
+    <string name="key_right">Right</string>
+    <string name="key_ok">OK</string>
+    <string name="key_back">Back</string>
+    <string name="key_home">Home</string>
+    <string name="key_power">Power</string>
+    <string name="key_volume_up">Volume up</string>
+    <string name="key_volume_down">Volume down</string>
+    <string name="key_mute">Mute</string>
+    <string name="key_play_pause">Play or pause</string>
+    <string name="key_rewind">Rewind</string>
+    <string name="key_fast_forward">Fast forward</string>
+    <string name="key_previous">Previous</string>
+    <string name="key_next">Next</string>
+    <string name="key_settings">TV settings</string>
+    <string name="key_input">Input</string>
+    <string name="key_captions">Captions</string>
+    <string name="key_info">Info</string>
+    <string name="key_guide">Guide</string>
+    <string name="key_channel_up">Channel +</string>
+    <string name="key_channel_down">Channel −</string>
+    <string name="key_apps">Apps</string>
+    <string name="key_menu">Menu</string>
+    <string name="key_search">Search</string>
+    <string name="keyboard">Keyboard</string>
+    <string name="more">More options</string>
+    <string name="find_remote">Find my remote</string>
+    <string name="find_remote_ringing">Your TV remote is beeping</string>
+    <string name="find_remote_stop">Stop</string>
+
+    <string name="keyboard_hint">Type on the TV</string>
+    <string name="keyboard_clear">Clear</string>
+    <string name="keyboard_send">Enter</string>
+    <string name="keyboard_hide">Hide keyboard</string>
+
+    <string name="volume">Volume</string>
+    <string name="volume_muted">Muted</string>
+
+    <!-- Sending files -->
+    <string name="send_files">Send files</string>
+    <string name="send_share_label">Send to TV</string>
+    <string name="send_title">Send to %1$s</string>
+    <plurals name="send_file_count">
+        <item quantity="one">%1$d file</item>
+        <item quantity="other">%1$d files</item>
+    </plurals>
+    <string name="send_button">Send</string>
+    <string name="send_change_tv">Change TV</string>
+    <string name="send_title_sending">Sending to %1$s</string>
+    <string name="send_preparing">Getting the files ready…</string>
+    <string name="send_opening_receiver">Opening Libremote Receiver on the TV…</string>
+    <string name="send_current_file">%1$s (%2$d of %3$d)</string>
+    <string name="send_progress">%1$s of %2$s</string>
+    <string name="send_sent_title">Sent to %1$s</string>
+    <string name="send_sent_text">They are listed in Libremote Receiver on the TV, and saved in its Download/Libremote folder.</string>
+    <plurals name="send_sent_summary">
+        <item quantity="one">%1$d file, %2$s</item>
+        <item quantity="other">%1$d files, %2$s</item>
+    </plurals>
+    <string name="send_done">Done</string>
+    <string name="close">Close</string>
+    <string name="send_no_tv_title">No TV yet</string>
+    <string name="send_no_tv_text">Pair Libremote with your TV first, then send the files again.</string>
+    <string name="send_nothing_title">Nothing to send</string>
+    <string name="send_nothing_text">Libremote sends files, such as photos, videos and APKs. Text and links can\'t be sent this way.</string>
+    <string name="send_busy_title">Still sending</string>
+    <string name="send_busy_text">Libremote is still sending other files. Try again once they have arrived.</string>
+    <string name="send_no_receiver_title">Libremote Receiver isn\'t on %1$s</string>
+    <string name="send_no_receiver_text">Files go to Libremote Receiver, a small free app for the TV (Android TV 8 or later). Install it on the TV from where you got Libremote, for example by copying its APK to the TV on a USB stick and opening it there. Then try again: Libremote opens it on the TV by itself.</string>
+    <string name="send_unreadable_title">Couldn\'t read %1$s</string>
+    <string name="send_unreadable_text">The file may have been moved or deleted. Nothing more was sent.</string>
+    <string name="send_refused_title">%1$s turned the files down</string>
+    <string name="send_refused_text">Libremote Receiver said: %1$s</string>
+    <string name="send_stalled_title">%1$s stopped receiving</string>
+    <string name="send_stalled_text">The TV may be out of space, or Libremote Receiver was closed. Some files may not have arrived.</string>
+    <string name="send_lost_title">The connection to %1$s was lost</string>
+    <string name="send_lost_text">Check the Wi-Fi and try again. (%1$s)</string>
+
+    <!-- Settings -->
+    <string name="settings_controls">Controls</string>
+    <string name="settings_haptics">Vibrate on touch</string>
+    <string name="settings_volume_keys">Phone volume buttons control the TV</string>
+    <string name="settings_volume_keys_summary">While the remote is open</string>
+    <string name="settings_auto_keyboard">Open the keyboard when the TV asks for text</string>
+    <string name="settings_keep_screen_on">Keep the screen on while the remote is open</string>
+    <string name="settings_tvs">Paired TVs</string>
+    <string name="settings_no_tvs">No paired TVs yet.</string>
+    <string name="settings_about">About</string>
+    <string name="settings_version">Version %1$s</string>
+    <string name="settings_privacy">Libremote has no accounts, ads, analytics or crash reporting. It connects only to TVs on your local network, using the same encrypted, paired connection as Google\'s own remote. It also keeps your phone\'s model and Android version from the TV, which can include them in its own usage reports to Google.</string>
+    <string name="settings_licence">Free software under the GNU General Public License, version 3. Icons: Material Symbols by Google, Apache License 2.0.</string>
+    <string name="back">Back</string>
+
+    <!-- Send files and receiver -->
+    <string name="send_cant_open_title">Couldn\'t open Libremote Receiver on %1$s</string>
+    <string name="send_cant_open_text">Libremote opens it through its remote connection to the TV, which isn\'t available right now. Check that the TV is on, or open Libremote Receiver on the TV yourself, then try again.</string>
+    <string name="send_not_listening_title">Libremote Receiver on %1$s didn\'t answer</string>
+    <string name="send_not_listening_text">It opened on the TV but didn\'t take the files. If it is an older version, update it on the TV, then try again.</string>
+    <string name="send_unverified_title">Couldn\'t verify Libremote Receiver on %1$s</string>
+    <string name="send_unverified_text">Libremote couldn\'t confirm that it was talking to the receiver on your TV, so nothing was sent. Try again. If this keeps happening, another device on your network may be answering in its place.</string>
+    <string name="notification_channel">Sending files</string>
+    <string name="notification_channel_description">Progress of files you send to a TV</string>
+    <string name="notification_progress">%1$s · %2$d%%</string>
+    <plurals name="notification_sent_title">
+        <item quantity="one">Sent %1$d file to %2$s</item>
+        <item quantity="other">Sent %1$d files to %2$s</item>
+    </plurals>
+    <string name="notification_sent_text">%1$s, in Download/Libremote on the TV</string>
+    <string name="notification_failed_title">Couldn\'t send to %1$s</string>
+    <string name="notification_failed_text">Open Libremote to see why, and to try again.</string>
+
+    <!-- Shortcuts, About this TV, Remote guide -->
+
+    <!-- The shortcut row on the remote -->
+    <string name="shortcuts_add">Add an app</string>
+    <string name="shortcut_not_installed">%1$s isn\'t on this TV. Its Play Store page is open on the TV.</string>
+    <string name="shortcut_not_on_tv">%1$s isn\'t on this TV.</string>
+    <string name="shortcut_failed">The TV couldn\'t open %1$s.</string>
+    <string name="shortcut_needs_receiver">Install Libremote Receiver on this TV to open %1$s.</string>
+    <string name="shortcut_offline">Not connected to %1$s.</string>
+    <string name="shortcut_busy">Still opening an app. Try again in a moment.</string>
+    <string name="shortcut_pin">Pin</string>
+    <string name="shortcut_unpin">Unpin</string>
+    <string name="shortcut_rename">Rename</string>
+    <string name="shortcut_hide">Hide</string>
+    <string name="shortcut_hidden">%1$s is hidden. Bring it back with +.</string>
+    <string name="shortcut_menu">Pin, rename or hide</string>
+    <string name="shortcut_menu_for">Options for %1$s</string>
+    <string name="shortcut_rename_title">Rename shortcut</string>
+    <string name="shortcut_rename_text">Leave it empty to use “%1$s”.</string>
+    <string name="shortcut_move_up">Move up</string>
+    <string name="shortcut_move_down">Move down</string>
+    <string name="shortcut_not_used">Not opened yet</string>
+    <plurals name="shortcut_uses">
+        <item quantity="one">Opened once</item>
+        <item quantity="other">Opened %d times</item>
+    </plurals>
+
+    <!-- Adding a shortcut -->
+    <string name="shortcuts_add_title">Add a shortcut</string>
+    <string name="shortcuts_add_for">For %1$s</string>
+    <string name="shortcuts_hidden">Hidden apps</string>
+    <string name="shortcuts_on_tv">Apps on %1$s</string>
+    <string name="shortcuts_all_added">Every app on the TV is already on the remote.</string>
+    <string name="shortcuts_popular">Popular apps</string>
+    <string name="shortcuts_other">Another app</string>
+    <string name="shortcuts_by_package">Enter a package name</string>
+    <string name="shortcuts_by_package_hint">For an app that isn\'t listed</string>
+    <string name="shortcuts_by_package_text">The app\'s Android package name. It is in the address of the app\'s Play Store page, after id=.</string>
+    <string name="shortcuts_by_package_invalid">That isn\'t a package name. Package names look like com.example.app.</string>
+    <string name="shortcuts_add_button">Add</string>
+    <string name="shortcuts_sync">Get the app list from the TV</string>
+    <string name="shortcuts_sync_hint">Needs Libremote Receiver on the TV</string>
+    <string name="shortcuts_sync_running">Asking the TV…</string>
+    <string name="shortcuts_sync_failed">Couldn\'t get the list. Install Libremote Receiver on the TV, then try again.</string>
+
+    <!-- Settings › Shortcuts -->
+    <string name="shortcuts_title">Shortcuts</string>
+    <string name="shortcuts_for">For %1$s</string>
+    <string name="shortcuts_choose_tv">Shortcuts for %1$s. Choose another TV</string>
+    <string name="shortcuts_no_tv">Pair a TV to choose its shortcuts.</string>
+    <string name="shortcuts_look">Look</string>
+    <string name="shortcuts_style">Style</string>
+    <string name="shortcuts_style_text">Text</string>
+    <string name="shortcuts_style_icons">Icons</string>
+    <string name="shortcuts_style_tiles">Tiles</string>
+    <string name="shortcuts_size">Button size</string>
+    <string name="shortcuts_size_s">Small</string>
+    <string name="shortcuts_size_m">Medium</string>
+    <string name="shortcuts_size_l">Large</string>
+    <string name="shortcuts_rows">Rows</string>
+    <plurals name="shortcuts_rows_count">
+        <item quantity="one">%d row</item>
+        <item quantity="other">%d rows</item>
+    </plurals>
+    <string name="shortcuts_on_remote">On the remote</string>
+    <string name="shortcuts_on_remote_text">Pinned apps come first, in your order: drag them by the handle. The others follow, most used first. Libremote learns them from the apps you open on this TV.</string>
+    <string name="shortcuts_pinned">Pinned</string>
+    <string name="shortcuts_by_use">Most used</string>
+    <string name="shortcuts_restore">Restore</string>
+    <string name="shortcuts_tv_apps">Apps on the TV</string>
+    <string name="shortcuts_tv_apps_text">Libremote Receiver on the TV can share the TV\'s list of apps, with their names and icons.</string>
+    <plurals name="shortcuts_tv_apps_count">
+        <item quantity="one">%1$d app from %2$s, with its name and icon.</item>
+        <item quantity="other">%1$d apps from %2$s, with their names and icons.</item>
+    </plurals>
+    <string name="shortcuts_sync_button">Get apps from the TV</string>
+    <string name="shortcuts_start_over">Start over</string>
+    <string name="shortcuts_reset_text">Go back to the starting list: YouTube, Netflix, Prime Video, Disney+ and Spotify.</string>
+    <string name="shortcuts_reset">Reset shortcuts</string>
+    <string name="shortcuts_reset_title">Reset shortcuts for %1$s?</string>
+    <string name="shortcuts_reset_confirm">Your pins, names and hidden apps are cleared, and Libremote forgets which apps it saw on this TV.</string>
+    <string name="shortcuts_reset_button">Reset</string>
+
+    <!-- Settings entries -->
+    <string name="settings_remote">Remote</string>
+    <string name="settings_shortcuts">Shortcuts</string>
+    <string name="settings_shortcuts_summary">Apps on the remote, their order and look</string>
+    <string name="settings_guide">Remote guide</string>
+    <string name="settings_guide_summary">What each button does, and where it works</string>
+
+    <!-- TV picker and About this TV -->
+    <string name="tv_picker_current">Current TV</string>
+    <string name="tv_picker_connected">Connected · %1$s</string>
+    <string name="tv_buttons">Channel buttons</string>
+    <string name="tv_buttons_channels">Channel +, Menu and Channel − on the right</string>
+    <string name="tv_buttons_apps">Off: Search, Menu and Apps on the right, as for a streaming box</string>
+    <string name="about_tv">About this TV</string>
+    <string name="about_model">Model</string>
+    <string name="about_maker">Maker</string>
+    <string name="about_android">Android version</string>
+    <string name="about_service">Remote service</string>
+    <string name="about_service_version">Remote service version</string>
+    <string name="about_features">Features it offers</string>
+    <string name="about_address">Address</string>
+    <string name="about_receiver">Libremote Receiver</string>
+    <string name="about_receiver_present">Installed</string>
+    <string name="about_receiver_absent">Not found on this TV</string>
+    <string name="about_receiver_unknown">Not seen yet</string>
+    <string name="about_play_store">Play Store</string>
+    <string name="about_play_store_missing">Not found. Shortcuts open apps through Libremote Receiver, or an app\'s own link.</string>
+    <string name="about_never_connected">Connect to this TV once to see what it reports about itself.</string>
+    <string name="about_reported_now">As the TV reported it on connecting. It stays on this phone.</string>
+    <string name="about_reported_before">As the TV reported it when Libremote last connected, %1$s. It stays on this phone.</string>
+    <string name="feature_keys">Remote buttons</string>
+    <string name="feature_typing">Typing</string>
+    <string name="feature_volume">Volume</string>
+    <string name="feature_power">Screen on or off</string>
+    <string name="feature_app_links">Opening apps</string>
+    <string name="feature_find_remote">Find my remote</string>
+    <string name="feature_voice">Voice search</string>
+    <string name="feature_assistant">Google Assistant</string>
+    <string name="feature_gamepad">Game controller</string>
+    <string name="feature_ping">Connection checks</string>
+    <string name="feature_unused">%1$s (not used by Libremote)</string>
+    <string name="feature_other">Others: %1$s</string>
+
+    <!-- Remote guide: one name and description per button, from RemoteGuide.sections -->
+    <string name="guide_title">Remote guide</string>
+    <string name="guide_intro">What each button does, from the top of the screen down. TVs differ, so some keys work only on some TVs, as noted.</string>
+    <string name="guide_top">Top of the screen</string>
+    <string name="guide_tv_name">TV name</string>
+    <string name="guide_tv_name_does">Opens the TV menu: switch to another TV or add one, and this TV\'s Find my remote, Channel buttons and About this TV.</string>
+    <string name="guide_send_files_does">Sends photos, videos and other files to the TV.</string>
+    <string name="guide_send_files_caveat">Needs Libremote Receiver on the TV. Libremote opens it there by itself.</string>
+    <string name="guide_power_does">Turns the TV\'s screen on or off. The button turns solid while the screen is off.</string>
+    <string name="guide_power_caveat">Turning the TV on works only if it stays on the network while off. Many TVs have a setting for this.</string>
+    <string name="guide_app_settings_does">Libremote\'s settings: controls, shortcuts, this guide and your TVs.</string>
+    <string name="guide_tv_menu">TV menu (under the TV\'s name)</string>
+    <string name="guide_add_tv_does">Pairs another TV. Also in Settings.</string>
+    <string name="guide_find_remote_does">Makes the TV\'s own remote beep, so you can find it.</string>
+    <string name="guide_find_remote_caveat">Only on TVs whose remote can beep. The menu offers it only then.</string>
+    <string name="guide_tv_buttons_does">On, for a TV: Channel +, Menu and Channel − on the right. Off, for a streaming box: Search, Menu and Apps.</string>
+    <string name="guide_tv_buttons_caveat">Libremote sets it from the model the TV reports. Change it here if it guessed wrong.</string>
+    <string name="guide_about_tv_does">What this TV reports about itself: model, Android version, remote service and the features it offers.</string>
+    <string name="guide_pad">Full, D-pad and Touchpad</string>
+    <string name="guide_full_does">Everything at once: a smaller D-pad, a swipe strip, and a row of extra keys.</string>
+    <string name="guide_dpad_does">The arrows move around the TV\'s screen and the centre selects. Hold the centre for an item\'s options, or an arrow to scroll fast.</string>
+    <string name="guide_touchpad_does">Swipe to move, tap to select, hold for options. Choose Full, D-pad or Touchpad above the pad.</string>
+    <string name="guide_strip_does">In Full, under the D-pad: swipe to move a step at a time, or quickly to go further. Tap for OK, hold for options.</string>
+    <string name="guide_volume">Left: volume</string>
+    <string name="guide_volume_up_does">Turns the volume up. Hold to keep going.</string>
+    <string name="guide_mute_does">Mutes or unmutes the sound.</string>
+    <string name="guide_volume_down_does">Turns the volume down. Hold to keep going.</string>
+    <string name="guide_volume_caveat">Also reaches a sound system connected over HDMI-CEC. Your phone\'s volume buttons do the same while the remote is open.</string>
+    <string name="guide_right">Right: channels, or Search and Apps</string>
+    <string name="guide_right_note">TVs get Channel +, Menu and Channel −. Streaming boxes, such as the NVIDIA Shield, a Chromecast or the Google TV Streamer, get Search, Menu and Apps. Libremote tells them apart by the model the TV reports; Channel buttons in the TV menu changes it.</string>
+    <string name="guide_channel_up_does">Next channel. Hold to keep going.</string>
+    <string name="guide_channel_down_does">Previous channel. Hold to keep going.</string>
+    <string name="guide_channel_caveat">In live-TV apps.</string>
+    <string name="guide_menu_key_does">Opens the current app\'s menu.</string>
+    <string name="guide_menu_key_caveat">What it does depends on the TV and the app. On the NVIDIA Shield it opens the settings.</string>
+    <string name="guide_search_does">Opens the TV\'s search.</string>
+    <string name="guide_apps_does">Opens the list of apps, as holding Home does.</string>
+    <string name="guide_apps_caveat">Some TVs show their dashboard instead.</string>
+    <string name="guide_extra_keys">Full: extra keys</string>
+    <string name="guide_extra_keys_note">In Full, the row above the D-pad. On a TV it also has Search and Apps, as above.</string>
+    <string name="guide_captions_does">Turns subtitles on or off.</string>
+    <string name="guide_in_apps_caveat">In apps that support it.</string>
+    <string name="guide_info_does">Shows information about what\'s on screen.</string>
+    <string name="guide_info_caveat">Only on some TVs, such as the NVIDIA Shield. Stock Android TV ignores it.</string>
+    <string name="guide_guide_does">Opens the live-TV programme guide.</string>
+    <string name="guide_guide_caveat">Only on TVs with live channels whose maker supports this key.</string>
+    <string name="guide_settings_does">Opens the TV\'s settings.</string>
+    <string name="guide_settings_caveat">Only on TVs whose maker supports this key. Stock Android TV ignores it.</string>
+    <string name="guide_input_does">Switches the TV\'s input, such as HDMI 1 or the antenna.</string>
+    <string name="guide_input_caveat">Only on some TVs. Stock Android TV ignores this key.</string>
+    <string name="guide_media">Playback</string>
+    <string name="guide_previous_does">Previous track or episode.</string>
+    <string name="guide_rewind_does">Rewinds what\'s playing.</string>
+    <string name="guide_play_pause_does">Plays or pauses.</string>
+    <string name="guide_fast_forward_does">Fast-forwards what\'s playing.</string>
+    <string name="guide_next_does">Next track or episode.</string>
+    <string name="guide_media_caveat">In apps that support it, which most video apps do.</string>
+    <string name="guide_buttons">Back, Home and Keyboard</string>
+    <string name="guide_back_does">Goes back one step.</string>
+    <string name="guide_home_does">Goes to the home screen.</string>
+    <string name="guide_home_caveat">Hold it for the list of apps or the dashboard, depending on the TV.</string>
+    <string name="guide_keyboard_does">Opens your phone\'s keyboard to type into the TV\'s text field. Enter runs the field\'s action, such as Search.</string>
+    <string name="guide_keyboard_caveat">It also opens by itself when the TV asks for text. You can turn that off in Settings.</string>
+    <string name="guide_shortcuts">App shortcuts</string>
+    <string name="guide_shortcut">An app</string>
+    <string name="guide_shortcut_does">Opens the app on the TV. Hold it to pin, rename or hide it. Settings › Shortcuts sets their order and look.</string>
+    <string name="guide_shortcut_caveat">On a TV without the Play Store, most apps open only through Libremote Receiver on the TV. The row is hidden on TVs that can\'t open apps.</string>
+    <string name="guide_shortcut_add_does">Adds an app: one you hid, one from the TV\'s list, a popular one, or any app by its package name.</string>
+
+    <!-- Updates (standard build only, for copies no app store updates: Updater) and Report a problem (both builds) -->
+
+    <!-- Settings › Updates -->
+    <string name="settings_updates">Updates</string>
+    <string name="settings_check_auto">Check for updates automatically</string>
+    <string name="settings_check_auto_summary">Once a day, when the remote opens. Connects to github.com; nothing installs without your confirmation.</string>
+    <string name="settings_check_now">Check for updates</string>
+    <string name="settings_check_now_summary">Libremote %1$s</string>
+    <string name="settings_check_now_checked">Libremote %1$s · checked %2$s</string>
+    <string name="settings_check_now_just">Libremote %1$s · checked just now</string>
+    <string name="settings_checking">Checking…</string>
+    <string name="settings_update_receiver">Update Libremote Receiver on %1$s</string>
+    <string name="settings_update_receiver_summary">%1$s → %2$s</string>
+    <string name="settings_privacy_updates">If you check for updates, Libremote also connects to github.com, which sees your IP address.</string>
+
+    <!-- Libremote's own update -->
+    <string name="update_none">Libremote %1$s is the latest version.</string>
+    <string name="update_check_failed">Couldn\'t check for updates: %1$s</string>
+    <string name="update_available">Libremote %1$s is available</string>
+    <string name="update_details">Downloads %1$s from Libremote\'s GitHub releases. Android asks you to confirm, then Libremote closes to update.</string>
+    <string name="update_receiver_too">Libremote Receiver %1$s is out too. Afterwards, update it on the TV from the TV menu, under the TV\'s name.</string>
+    <string name="update_install">Update</string>
+    <string name="update_later">Not now</string>
+    <string name="update_skip">Skip this version</string>
+    <string name="update_downloading">Downloading Libremote %1$s</string>
+    <string name="update_failed">Update failed. %1$s</string>
+    <string name="update_corrupt">The download is incomplete or damaged.</string>
+    <string name="update_wrong_app">The download isn\'t the app it should be.</string>
+    <string name="update_not_newer">The download isn\'t newer than what is installed.</string>
+    <string name="update_not_signed">The download isn\'t signed with Libremote\'s release key.</string>
+    <string name="update_channel">Updates</string>
+    <string name="update_done_title">Libremote is updated to %1$s</string>
+    <string name="update_done_text">Tap to open it again.</string>
+    <string name="update_announce_receiver">Libremote Receiver %1$s is out for %2$s. Tap the TV\'s name to update it.</string>
+
+    <!-- Libremote Receiver's update, sent from the phone to the TV -->
+    <string name="receiver_update_note">Update Libremote Receiver</string>
+    <string name="receiver_update_note_summary">Version %1$s is ready for this TV</string>
+    <string name="receiver_update_dismiss">Hide until the next version</string>
+    <string name="about_receiver_version">Installed, version %1$s</string>
+    <string name="about_receiver_update">Update to %1$s</string>
+    <string name="receiver_update_title">Update Libremote Receiver on %1$s?</string>
+    <string name="receiver_update_versions">Version %2$s replaces %1$s on the TV.</string>
+    <string name="receiver_update_how">Libremote downloads it (%1$s) from its GitHub releases, checks it, and sends it to the TV over its encrypted connection. Then confirm the update on the TV.</string>
+    <string name="receiver_updating">Updating Libremote Receiver</string>
+    <string name="receiver_update_step_download">Downloading version %1$s…</string>
+    <string name="receiver_update_step_open">Opening Libremote Receiver on %1$s…</string>
+    <string name="receiver_update_step_send">Sending it to %1$s…</string>
+    <string name="receiver_update_confirm">On %1$s, select Update in the installer (the first time, allow Libremote Receiver to install apps). It closes while it updates; open it again afterwards.</string>
+    <string name="receiver_update_waiting">Waiting for the TV…</string>
+    <string name="receiver_update_done_title">Libremote Receiver is up to date</string>
+    <string name="receiver_update_done_text">%1$s has Libremote Receiver %2$s.</string>
+    <string name="receiver_update_waited_title">Finish on the TV</string>
+    <string name="receiver_update_waited_text">If the installer is still open on %1$s, select Update there. Libremote sees the new version the next time it connects to Libremote Receiver.</string>
+    <string name="receiver_update_failed">Couldn\'t update Libremote Receiver</string>
+    <string name="receiver_update_missing">Libremote Receiver isn\'t on %1$s.</string>
+    <string name="receiver_update_no_answer">Libremote Receiver opened on %1$s but didn\'t answer. Try again.</string>
+
+    <!-- Settings › Report a problem -->
+    <string name="settings_report">Report a problem</string>
+    <string name="settings_report_summary">On Libremote\'s GitHub page</string>
+    <string name="report_title">Report a problem</string>
+    <string name="report_text">Open GitHub to describe what happened (it needs a GitHub account). These details help: copy them and paste them in if you like. Nothing is sent from the app.</string>
+    <string name="report_copy">Copy details</string>
+    <string name="report_open">Open GitHub</string>
+    <string name="report_copied">Details copied</string>
+    <string name="report_no_browser">No browser on this phone can open %1$s</string>
+</resources>

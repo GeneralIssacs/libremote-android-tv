@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Sofa's dark neutrals with its orange. -->
+    <color name="bg">#FF14161C</color>
+    <color name="surface">#FF1F222B</color>
+    <color name="surface_high">#FF2B2F3A</color>
+    <color name="on_surface">#FFF2F3F5</color>
+    <color name="on_surface_muted">#FFA7ACB8</color>
+    <color name="accent">#FFFF8A3D</color>
+    <color name="on_accent">#FF2E1200</color>
+    <color name="accent_container">#FF7A3500</color>
+    <color name="on_accent_container">#FFFFDCC8</color>
+    <color name="ok">#FF7BD88F</color>
+    <color name="warn">#FFF5B971</color>
+    <color name="error">#FFF28B82</color>
+    <color name="scrim">#99000000</color>
+    <color name="ripple">#33FFFFFF</color>
+</resources>

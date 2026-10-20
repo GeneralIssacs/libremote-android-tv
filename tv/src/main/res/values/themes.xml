@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Receiver" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/bg</item>
+        <item name="android:colorBackground">@color/bg</item>
+        <item name="android:colorPrimary">@color/accent</item>
+        <item name="android:colorAccent">@color/accent</item>
+        <item name="android:textColorPrimary">@color/on_surface</item>
+        <item name="android:textColorSecondary">@color/on_surface_muted</item>
+        <item name="android:alertDialogTheme">@style/Theme.Receiver.Dialog</item>
+    </style>
+
+    <style name="Theme.Receiver.Dialog" parent="@android:style/Theme.Material.Dialog.Alert">
+        <item name="android:colorBackground">@color/surface</item>
+        <item name="android:colorAccent">@color/accent</item>
+        <item name="android:textColorPrimary">@color/on_surface</item>
+        <item name="android:textColorSecondary">@color/on_surface_muted</item>
+    </style>
+
+    <!-- Settings: a wide dialog over the receiver screen, which keeps receiving behind it. -->
+    <style name="Theme.Receiver.Settings" parent="@android:style/Theme.Material.Dialog.NoActionBar">
+        <item name="android:windowBackground">@drawable/bg_card</item>
+        <item name="android:colorAccent">@color/accent</item>
+        <item name="android:textColorPrimary">@color/on_surface</item>
+        <item name="android:textColorSecondary">@color/on_surface_muted</item>
+        <item name="android:alertDialogTheme">@style/Theme.Receiver.Dialog</item>
+    </style>
+
+    <!-- The brief screen for an app-list sync: a card over whatever the TV shows. -->
+    <style name="Theme.Receiver.Overlay" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Translucent</item>
+    </style>
+</resources>

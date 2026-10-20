@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Shortcut actions, shared by the long-press menu and TalkBack's actions. -->
+    <item name="shortcut_action_pin" type="id" />
+    <item name="shortcut_action_rename" type="id" />
+    <item name="shortcut_action_hide" type="id" />
+    <item name="shortcut_action_move_up" type="id" />
+    <item name="shortcut_action_move_down" type="id" />
+</resources>

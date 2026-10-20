@@ -1,0 +1,27 @@
+Libremote is a phone remote for Android TV and Google TV. It pairs with your TV the way Google's own remote app does, with the code the TV shows, but it has no account, no ads, no analytics and no crash reporting. It talks only to your TV, over your Wi-Fi.
+
+Remote
+• Full, D-pad or touchpad. Hold any button for the TV's long press, hold an arrow to scroll.
+• Full mode adds keys for search, captions, info, apps, guide, TV settings and input, and a swipe strip.
+• Volume on the left, or the phone's own volume buttons.
+• Channel +, Menu and Channel − on a TV; Search, Menu and Apps on a streaming box such as a Shield or a Chromecast.
+• Playback, power, Back and Home, and Find my remote on TVs whose remote can beep.
+
+Typing
+• When a text field opens on the TV, the phone's keyboard opens and the text appears as you type.
+
+App shortcuts
+• A row of apps for each TV, learned from the apps you open there, most used first.
+• Pin, rename, hide or add apps; text, icons or tiles in three sizes and up to three rows.
+
+Send files to the TV
+• Photos, videos, APKs or anything else, from the remote or from any app's share menu.
+• Encrypted, to your own TV only, with a progress notification.
+• Needs Libremote Receiver, a small free app for the TV (Android TV 8.0 or later), which also opens any app for your shortcuts on TVs without the Play Store.
+
+Privacy
+• No accounts, analytics, ads, crash reports or servers.
+• Libremote doesn't tell the TV your phone's model or Android version, which the TV would include in its usage reports to Google.
+• Your pairing key stays on the phone, encrypted with Android's keystore.
+
+Libremote needs Android 8.0 or later and a TV with Google's Android TV Remote Service, which Google TV and certified Android TV devices include. Android TV and Google TV are trademarks of Google LLC; Libremote is not made or endorsed by Google.

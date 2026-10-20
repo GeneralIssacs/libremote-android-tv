@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/navRow"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="12dp"
+    android:layout_marginBottom="12dp"
+    android:orientation="horizontal">
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <ImageButton
+            android:id="@+id/back"
+            style="@style/Libremote.Round"
+            android:layout_gravity="center"
+            android:contentDescription="@string/key_back"
+            android:src="@drawable/ic_arrow_back" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <ImageButton
+            android:id="@+id/home"
+            style="@style/Libremote.Round"
+            android:layout_gravity="center"
+            android:contentDescription="@string/key_home"
+            android:src="@drawable/ic_home" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <ImageButton
+            android:id="@+id/keyboard"
+            style="@style/Libremote.Round"
+            android:layout_gravity="center"
+            android:contentDescription="@string/keyboard"
+            android:src="@drawable/ic_keyboard" />
+    </FrameLayout>
+</LinearLayout>

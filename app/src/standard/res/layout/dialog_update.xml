@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- An update on its way (UpdateProgress): laid out like the Send files screen. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="24dp"
+    android:paddingTop="24dp"
+    android:paddingEnd="24dp"
+    android:paddingBottom="16dp">
+
+    <TextView
+        android:id="@+id/updateTitle"
+        style="@style/Libremote.Title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/updateText"
+        style="@style/Libremote.Body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:accessibilityLiveRegion="polite" />
+
+    <ProgressBar
+        android:id="@+id/updateProgress"
+        style="@android:style/Widget.Material.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:indeterminateTint="@color/accent"
+        android:progressBackgroundTint="@color/surface_high"
+        android:progressTint="@color/accent" />
+
+    <TextView
+        android:id="@+id/updateStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textColor="@color/on_surface_muted"
+        android:textSize="14sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:gravity="end"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/updateSecondary"
+            style="@style/Libremote.Button.Text"
+            android:text="@string/cancel" />
+
+        <Button
+            android:id="@+id/updatePrimary"
+            style="@style/Libremote.Button"
+            android:layout_marginStart="8dp"
+            android:text="@string/send_done"
+            android:visibility="gone" />
+    </LinearLayout>
+</LinearLayout>

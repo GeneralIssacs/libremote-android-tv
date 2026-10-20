@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Playback: previous, rewind, play or pause, fast forward, next. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/mediaRow"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="12dp"
+    android:background="@drawable/bg_pill"
+    android:orientation="horizontal">
+
+    <ImageButton
+        android:id="@+id/previous"
+        style="@style/Libremote.PillButton"
+        android:contentDescription="@string/key_previous"
+        android:src="@drawable/ic_skip_previous" />
+
+    <ImageButton
+        android:id="@+id/rewind"
+        style="@style/Libremote.PillButton"
+        android:contentDescription="@string/key_rewind"
+        android:src="@drawable/ic_fast_rewind" />
+
+    <ImageButton
+        android:id="@+id/playPause"
+        style="@style/Libremote.PillButton"
+        android:contentDescription="@string/key_play_pause"
+        android:src="@drawable/ic_play_pause" />
+
+    <ImageButton
+        android:id="@+id/fastForward"
+        style="@style/Libremote.PillButton"
+        android:contentDescription="@string/key_fast_forward"
+        android:src="@drawable/ic_fast_forward" />
+
+    <ImageButton
+        android:id="@+id/next"
+        style="@style/Libremote.PillButton"
+        android:contentDescription="@string/key_next"
+        android:src="@drawable/ic_skip_next" />
+</LinearLayout>

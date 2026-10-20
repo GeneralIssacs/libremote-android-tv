@@ -1,0 +1,1 @@
+Receives files from Libremote and opens apps for its shortcuts. Encrypted.

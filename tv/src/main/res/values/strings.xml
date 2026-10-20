@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Libremote Receiver</string>
+
+    <!-- What the receiver is doing -->
+    <string name="ready_title">Ready to receive</string>
+    <string name="ready_text">On your phone, open Libremote and choose Send files, or share files to “Send to TV” from another app. Only phones paired with this TV can send here, and files travel encrypted. This TV receives while this screen is open.</string>
+    <string name="starting_title">Starting…</string>
+    <string name="busy_title">Can\'t receive right now</string>
+    <string name="busy_text">Another app on this TV is using the receiver\'s network port (6469). Close it, then open Libremote Receiver again.</string>
+    <string name="storage_title">Allow Libremote Receiver to save files</string>
+    <string name="storage_text">Files go to Download/Libremote, which needs the storage permission on this version of Android. Select Allow, then send again.</string>
+    <string name="storage_allow">Allow</string>
+    <string name="receiving_title">Receiving from %1$s</string>
+    <string name="receiving_file">%1$s (%2$d of %3$d)</string>
+    <string name="receiving_progress">%1$s of %2$s</string>
+    <string name="a_phone">a phone</string>
+    <plurals name="received_from">
+        <item quantity="one">Received %1$d file from %2$s.</item>
+        <item quantity="other">Received %1$d files from %2$s.</item>
+    </plurals>
+    <string name="receive_failed">The last transfer from %1$s stopped: %2$s</string>
+    <string name="address">This TV: %1$s · %2$s</string>
+    <string name="address_none">This TV isn\'t on a network.</string>
+    <string name="paired_new">A new phone is paired with this receiver. Settings lists paired phones.</string>
+
+    <!-- What arrived -->
+    <string name="received">Received</string>
+    <string name="received_empty">Files you receive appear here. They are saved in Download/Libremote.</string>
+    <string name="received_hint">Select a file to open it; an APK opens the installer. Hold Select to delete a file.</string>
+    <string name="received_details">%1$s · %2$s</string>
+    <string name="open_none">No app on this TV can open %1$s.</string>
+    <string name="install_allow">Allow Libremote Receiver to install apps, then go back: the installer opens.</string>
+    <string name="delete_title">Delete %1$s?</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+
+    <!-- The first time the receiver opens -->
+    <string name="install_question_title">Open the installer automatically when an app arrives?</string>
+    <string name="install_question_text">When a paired phone sends an APK, the installer opens by itself. Android still asks before installing anything. You can change this in Settings.</string>
+    <string name="yes">Yes</string>
+    <string name="not_now">Not now</string>
+
+    <!-- Settings -->
+    <string name="settings">Settings</string>
+    <string name="settings_auto_install">Open the installer when an app arrives</string>
+    <string name="settings_auto_install_summary">Android still asks before installing.</string>
+    <string name="settings_phones">Paired phones</string>
+    <string name="settings_no_phones">No phones yet. A phone pairs by itself when Libremote opens this receiver from it.</string>
+    <string name="settings_phone_paired">Paired %1$s</string>
+    <string name="settings_phone_unnamed">A phone</string>
+    <string name="settings_remove_title">Remove %1$s?</string>
+    <string name="settings_remove_text">It can no longer send files here or see this TV\'s apps. Libremote on that phone pairs again the next time it opens this receiver, as long as the phone is still paired with the TV itself.</string>
+    <string name="remove">Remove</string>
+
+    <!-- Opened by a phone for a moment -->
+    <string name="sync_text">Sharing this TV\'s app list with your phone…</string>
+    <string name="launch_missing">%1$s isn\'t installed on this TV.</string>
+
+    <!-- Reasons sent back to the phone -->
+    <string name="no_space">Not enough space on the TV: %1$s free, %2$s needed.</string>
+    <string name="cant_save">The TV couldn\'t save %1$s.</string>
+    <string name="no_storage_permission">Libremote Receiver may not save files on this TV yet. Allow it on the TV, then send again.</string>
+
+    <!-- Updates of the receiver, which Libremote on a paired phone sends (SelfUpdate) -->
+    <string name="update_title">Updating to Libremote Receiver %1$s</string>
+    <string name="update_text">Libremote on %1$s sent this update. Select Update in the installer. The receiver closes while it updates.</string>
+    <string name="updated">Libremote Receiver is updated to %1$s.</string>
+    <!-- Sent back to the phone, which shows them -->
+    <string name="update_not_receiver">That APK isn\'t Libremote Receiver.</string>
+    <string name="update_not_newer">The TV already has Libremote Receiver %1$s.</string>
+    <string name="update_not_signed">That APK isn\'t signed with the same key as Libremote Receiver on this TV.</string>
+</resources>

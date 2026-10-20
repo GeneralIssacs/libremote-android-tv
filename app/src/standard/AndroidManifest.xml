@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Updates of Libremote itself from its GitHub releases, through Android's installer, which asks the user to
+         confirm each one. Only in this build: the Google Play build has no updater. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <application>
+        <!-- Hears back from the system installer while Libremote installs an update of itself. -->
+        <receiver
+            android:name=".update.InstallReceiver"
+            android:exported="false" />
+        <!-- After an update the user started from Libremote: opens it again, or from Android 10 says so in a
+             notification. -->
+        <receiver
+            android:name=".update.UpdatedReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

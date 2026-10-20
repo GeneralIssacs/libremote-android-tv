@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/keyboardBar"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/bg_field"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="20dp"
+    android:paddingTop="4dp"
+    android:paddingEnd="4dp"
+    android:paddingBottom="4dp"
+    android:visibility="gone">
+
+    <EditText
+        android:id="@+id/text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@null"
+        android:hint="@string/keyboard_hint"
+        android:imeOptions="actionSend|flagNoExtractUi"
+        android:importantForAutofill="no"
+        android:inputType="text"
+        android:minHeight="48dp"
+        android:singleLine="true"
+        android:textColor="@color/on_surface"
+        android:textSize="17sp" />
+
+    <ImageButton
+        android:id="@+id/textClear"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_borderless"
+        android:contentDescription="@string/keyboard_clear"
+        android:scaleType="center"
+        android:src="@drawable/ic_backspace"
+        android:tint="@color/on_surface_muted" />
+
+    <ImageButton
+        android:id="@+id/textHide"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_borderless"
+        android:contentDescription="@string/keyboard_hide"
+        android:scaleType="center"
+        android:src="@drawable/ic_keyboard_hide"
+        android:tint="@color/on_surface_muted" />
+
+    <ImageButton
+        android:id="@+id/textSend"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="4dp"
+        android:background="@drawable/bg_round_accent"
+        android:contentDescription="@string/keyboard_send"
+        android:scaleType="center"
+        android:src="@drawable/ic_keyboard_return"
+        android:tint="@color/on_accent_container" />
+</LinearLayout>

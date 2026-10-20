@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Sofa's orange, shared by Libremote, Libremote Receiver and Sofa. -->
+    <color name="brand">#FFFF8A3D</color>
+    <!-- Light theme; values-night holds the dark one. -->
+    <color name="bg">#FFF7F4F2</color>
+    <color name="surface">#FFFFFFFF</color>
+    <color name="surface_high">#FFEDE6E1</color>
+    <color name="on_surface">#FF1F1A17</color>
+    <color name="on_surface_muted">#FF64594F</color>
+    <!-- A deeper orange than the brand, so white text on it stays readable. -->
+    <color name="accent">#FFA84800</color>
+    <color name="on_accent">#FFFFFFFF</color>
+    <color name="accent_container">#FFFFDCC8</color>
+    <color name="on_accent_container">#FF3A1500</color>
+    <color name="ok">#FF2E7D32</color>
+    <color name="warn">#FFB26A00</color>
+    <color name="error">#FFC62828</color>
+    <color name="scrim">#66000000</color>
+    <color name="ripple">#22000000</color>
+</resources>

@@ -1,0 +1,11 @@
+Libremote Receiver is the TV companion of Libremote for Android TV, a private phone remote. It is needed only for some things:
+
+• Sending files: photos, videos, APKs or anything else you send from Libremote land in Download/Libremote on the TV. Select an APK to install it; the first time, the receiver asks whether to open the installer by itself when an app arrives.
+• Opening any app from Libremote's shortcuts, on TVs without the Play Store.
+• Sharing the TV's app list, with names and icons, with your phone.
+
+It accepts only your phones. A phone pairs with it by itself, through its paired connection to the TV, with no code to type, and everything between them is encrypted with both ends authenticated. There is no unencrypted mode. Settings on the receiver lists paired phones, to remove one.
+
+It listens only while its screen is open, or for a moment when Libremote opens an app or fetches the app list. It has no accounts, analytics, ads or servers. Libremote keeps it up to date from your phone.
+
+Libremote Receiver needs Android TV 8.0 or later.
