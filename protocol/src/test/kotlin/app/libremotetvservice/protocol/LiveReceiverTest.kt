@@ -23,14 +23,17 @@ class LiveReceiverTest {
         val port = parts.getOrNull(1)?.toInt() ?: RECEIVER_PORT
         work.mkdirs()
         val identity = ClientIdentity.generate("libremote/live-receiver-test")
-        val invite = ReceiverInvite.create(publicKeyPin(identity.certificate))
+        val invite = ReceiverInvite.create(publicKeyPin(identity.certificate), name = "Libremote test")
         File(work, "receiver-link.txt").writeText(invite.link())
         println("LIVE: open ${invite.link()}")
         val deadline = System.currentTimeMillis() + 60_000
         var client: ReceiverClient? = null
         while (client == null) {
             try {
-                client = ReceiverClient.connect(parts[0], identity, null, invite.secret, "Libremote test", port)
+                client = ReceiverClient.connect(
+                    parts[0], identity, null, invite.secret, "Libremote test", port,
+                    confirming = { code -> println("LIVE: the TV asks whether to allow this test; its code: $code") },
+                )
             } catch (e: ProtocolException) {
                 if (e !is ReceiverUnavailableException && e !is ReceiverRefusedPhoneException || System.currentTimeMillis() > deadline) throw e
                 Thread.sleep(1_000)
@@ -52,6 +55,27 @@ class LiveReceiverTest {
                 val started = System.nanoTime()
                 it.send(extra.map { file -> OutgoingFile(file.name, file.length(), file.lastModified()) { file.inputStream() } })
                 println("LIVE: sent ${extra.map { file -> file.name }} in ${(System.nanoTime() - started) / 1_000_000} ms")
+            }
+            // -Plibremote.cutUpdate=path: that APK as an update of the receiver, cut off halfway, as when the phone's
+            // network drops. The receiver must drop it and open no installer.
+            System.getProperty("libremote.cutUpdate")?.takeIf { path -> path.isNotBlank() }?.let(::File)?.let { apk ->
+                val half = apk.length() / 2
+                val cut = OutgoingFile(apk.name, apk.length()) {
+                    object : java.io.FilterInputStream(apk.inputStream()) {
+                        var read = 0L
+                        override fun read(b: ByteArray, off: Int, len: Int): Int {
+                            if (read >= half) throw java.io.IOException("Cut off on purpose")
+                            return super.read(b, off, len).also { n -> if (n > 0) read += n }
+                        }
+                    }
+                }
+                try {
+                    it.sendUpdate(cut) { _, sent, total -> if (sent % (8 shl 20) < FilePacket.CHUNK) println("LIVE: update $sent of $total bytes") }
+                    fail("The cut update went through")
+                } catch (e: Exception) {
+                    println("LIVE: the update was cut off: $e")
+                }
+                return
             }
             val apps = it.apps()
             println("LIVE: ${apps.size} apps: " + apps.joinToString { app -> "${app.label} (${app.packageName}, ${app.icon?.size ?: 0} B icon)" })
