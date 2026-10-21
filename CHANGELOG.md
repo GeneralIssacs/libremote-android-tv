@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.0.1
+
+An update for Libremote Receiver, the app on the TV. Libremote on the phone stays at 1.0.0.
+
+- The TV asks before a new phone can use the receiver. It shows the phone's name, and Don't allow is selected
+  until you choose. Before, any app on the TV could add a phone without asking.
+- A phone you remove in the receiver's settings stays removed. If it tries again, the TV says you removed it
+  before and asks you again. Removing a phone stops it sending files; it still works as a remote until you unpair
+  it from the TV itself.
+- A file cut off because the TV lost power or the receiver closed no longer stays behind in Downloads. The
+  receiver cleans it up the next time it opens.
+- Phones you already allowed stay paired after the update.
+
+Coming in the next version of Libremote on the phone: a six-digit code to compare with the one on the TV when it
+asks, and when the connection drops in the middle of sending, it says which files arrived and Try again sends only
+the rest.
+
 ## 1.0.0
 
 First public release of Libremote for Android TV and Libremote Receiver.

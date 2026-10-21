@@ -1,0 +1,1 @@
+The TV now asks before a new phone can send it files, and a phone you remove stays removed until you allow it again. If the TV loses power or the receiver closes while a file is coming in, the half-finished file is cleaned up the next time the receiver opens.

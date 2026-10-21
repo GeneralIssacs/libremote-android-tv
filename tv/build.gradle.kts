@@ -33,8 +33,8 @@ android {
         minSdk = 26
         targetSdk = 36
         // MAJOR * 10000 + MINOR * 100 + PATCH, as in the phone app. Keep both literal for F-Droid.
-        versionCode = 10000
-        versionName = "1.0.0"
+        versionCode = 10001
+        versionName = "1.0.1"
     }
 
     buildFeatures {
