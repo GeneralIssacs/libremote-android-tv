@@ -78,8 +78,9 @@ class ReceiverChannelTest {
         identity: ClientIdentity = receiverIdentity,
         protocols: List<String> = listOf("TLSv1.3", "TLSv1.2"),
         appVersion: Long? = null,
+        confirmsEachFile: Boolean = true,
     ) =
-        ReceiverServer(identity, phones, handler, port = 0, protocols = protocols, appVersion = appVersion).also {
+        ReceiverServer(identity, phones, handler, port = 0, protocols = protocols, appVersion = appVersion, confirmsEachFile = confirmsEachFile).also {
             it.start(InetSocketAddress(InetAddress.getLoopbackAddress(), 0))
             servers += it
         }
@@ -264,6 +265,62 @@ class ReceiverChannelTest {
             }
         }
         assertEquals(listOf("big.bin"), handler.sink.abandoned)
+    }
+
+    /** A sink where the connection drops once [path] has got [after] bytes, as when the phone's Wi-Fi goes off. */
+    private fun dropIn(server: ReceiverServer, path: String, after: Int) {
+        handler.sink.open = { name ->
+            if (name != path) java.io.ByteArrayOutputStream() else object : java.io.ByteArrayOutputStream() {
+                override fun write(b: ByteArray, off: Int, len: Int) {
+                    super.write(b, off, len)
+                    if (size() >= after) server.disconnect(phoneKey)
+                }
+            }
+        }
+    }
+
+    private val batch = listOf(
+        file("a-first.bin", Random(4).nextBytes(10_000)),
+        OutgoingFile("b-big.bin", 2_000_000_000) { ZeroStream() },
+        file("c-last.bin", "c".encodeToByteArray()),
+    )
+
+    @Test
+    fun aLostConnectionSaysWhichFilesArrived() {
+        val server = server(appVersion = 10001)
+        phones.paired[phoneKey] = true
+        dropIn(server, "b-big.bin", after = 1_000_000)
+        connect(server, pin = receiverKey, secret = null).use { client ->
+            assertTrue(client.confirmsEachFile)
+            try {
+                client.send(batch)
+                fail("Expected a lost connection")
+            } catch (e: TransferLostException) {
+                assertEquals(1, e.arrived) // a-first.bin, confirmed by the receiver.
+                assertEquals(2, e.started) // b-big.bin was under way; c-last.bin never started.
+            }
+        }
+        assertEquals(listOf("a-first.bin"), handler.sink.complete)
+        assertEquals(listOf("b-big.bin"), handler.sink.abandoned)
+    }
+
+    @Test
+    fun aReceiverBefore101DoesNotSayWhichFilesArrived() {
+        // Its hello doesn't offer it, so the phone doesn't ask, and knows only how far it got itself.
+        val server = server(appVersion = 10000, confirmsEachFile = false)
+        phones.paired[phoneKey] = true
+        dropIn(server, "b-big.bin", after = 1_000_000)
+        connect(server, pin = receiverKey, secret = null).use { client ->
+            assertFalse(client.confirmsEachFile)
+            try {
+                client.send(batch)
+                fail("Expected a lost connection")
+            } catch (e: TransferLostException) {
+                assertNull(e.arrived)
+                assertEquals(2, e.started)
+            }
+        }
+        assertEquals(listOf("a-first.bin"), handler.sink.complete)
     }
 
     @Test

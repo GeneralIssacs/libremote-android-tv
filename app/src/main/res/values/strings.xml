@@ -155,6 +155,36 @@
     <string name="send_stalled_text">The TV may be out of space, or Libremote Receiver was closed. Some files may not have arrived.</string>
     <string name="send_lost_title">The connection to %1$s was lost</string>
     <string name="send_lost_text">Check the Wi-Fi and try again. (%1$s)</string>
+    <!-- A connection lost mid-batch: which files the TV confirmed, which one was cut off, which never went. -->
+    <plurals name="send_lost_arrived">
+        <item quantity="one">%1$d of %2$d file arrived (%3$s).</item>
+        <item quantity="other">%1$d of %2$d files arrived (%3$s).</item>
+    </plurals>
+    <string name="send_lost_range">%1$s to %2$s</string>
+    <plurals name="send_lost_none_arrived">
+        <item quantity="one">None of the %1$d file arrived.</item>
+        <item quantity="other">None of the %1$d files arrived.</item>
+    </plurals>
+    <string name="send_lost_cut_off">%1$s was cut off.</string>
+    <string name="send_lost_not_sent">%1$s wasn\'t sent.</string>
+    <string name="send_lost_not_arrived">%1$s didn\'t arrive.</string>
+    <plurals name="send_lost_rest_not_sent">
+        <item quantity="one">The remaining %1$d file wasn\'t sent.</item>
+        <item quantity="other">The remaining %1$d files weren\'t sent.</item>
+    </plurals>
+    <plurals name="send_lost_rest_not_arrived">
+        <item quantity="one">The remaining %1$d file didn\'t arrive.</item>
+        <item quantity="other">The remaining %1$d files didn\'t arrive.</item>
+    </plurals>
+    <string name="send_lost_unconfirmed">It was lost while sending %1$s (%2$d of %3$d). This version of Libremote Receiver doesn\'t confirm each file, so check on the TV which ones arrived.</string>
+    <plurals name="send_lost_retry">
+        <item quantity="one">Check the Wi-Fi, then try again to send the file that didn\'t arrive. (%2$s)</item>
+        <item quantity="other">Check the Wi-Fi, then try again to send the %1$d files that didn\'t arrive. (%2$s)</item>
+    </plurals>
+    <plurals name="send_lost_retry_all">
+        <item quantity="one">Check the Wi-Fi and try again, which sends the %1$d file again. (%2$s)</item>
+        <item quantity="other">Check the Wi-Fi and try again, which sends all %1$d files again. (%2$s)</item>
+    </plurals>
 
     <!-- Settings -->
     <string name="settings_controls">Controls</string>
@@ -191,6 +221,7 @@
     <string name="notification_sent_text">%1$s, in Download/Libremote on the TV</string>
     <string name="notification_failed_title">Couldn\'t send to %1$s</string>
     <string name="notification_failed_text">Open Libremote to see why, and to try again.</string>
+    <string name="notification_lost_text">%1$s Open Libremote to try again.</string>
 
     <!-- Shortcuts, About this TV, Remote guide -->
 

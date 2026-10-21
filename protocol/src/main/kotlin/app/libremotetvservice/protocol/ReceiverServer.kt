@@ -26,6 +26,8 @@ class ReceiverServer(
     private val protocols: List<String> = listOf("TLSv1.3", "TLSv1.2"),
     /** This receiver's versionCode, which phones read to offer updates; null leaves it out, as receivers before 1.0.0. */
     private val appVersion: Long? = null,
+    /** Whether to offer confirming each file of a send (from 1.0.1); tests turn it off to act as an older receiver. */
+    private val confirmsEachFile: Boolean = true,
 ) : Closeable {
 
     /** The phones this receiver accepts (PhoneRegistry). Called from connection threads. */
@@ -169,6 +171,7 @@ class ReceiverServer(
         val output = socket.outputStream
         val hello = linkedMapOf<String, Any?>("receiver" to ReceiverClient.RECEIVER_NAME, "version" to "1")
         appVersion?.let { hello["app"] = it.toString() }
+        if (confirmsEachFile) hello["arrived"] = "1"
         phones.takeSecret(phone.key)?.let { hello["proof"] = ReceiverProof.compute(it, phone.key, receiverKey).toHex() }
         output.writeJson(hello)
         output.flush()

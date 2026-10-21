@@ -199,7 +199,8 @@ little-endian int32, a type byte (0 SUCCESS, 1 ERROR, 2 JSON, 3 BINARY), the pay
    [Allowing a new phone](#allowing-a-new-phone).) `version` is the channel's version; `app` is the receiver's own
    versionCode (MAJOR × 10000 + MINOR × 100 + PATCH, so 1.0.0 is `10000`), which the phone uses to offer updates
    ([Updating the receiver](#updating-the-receiver)). Receivers before 1.0.0 don't send `app`: the phone then treats
-   the version as unknown and offers no update.
+   the version as unknown and offers no update. From 1.0.1 the hello also has `"arrived":"1"`: the receiver can
+   confirm each file of a send (below).
 2. Phone to receiver, only once the receiver is verified: `{"request":"hello","name":"<the phone's device name>"}`.
    The receiver lists the phone under that name. (Google's remote service is only ever told "Libremote".)
 3. Then any number of requests, each answered before the next:
@@ -210,6 +211,13 @@ little-endian int32, a type byte (0 SUCCESS, 1 ERROR, 2 JSON, 3 BINARY), the pay
      connection. One transfer runs at a time; another phone is told the TV is busy.
      With `"update":"1"` in the request, the batch is a new version of the receiver itself: see
      [Updating the receiver](#updating-the-receiver). Such a request must have `"count":"1"`, or it gets an ERROR.
+     With `"arrived":"1"` in the request, which the phone adds only when the receiver's hello offered it, the
+     receiver also sends `{"arrived":"<index>"}` (from 0) as each file is saved and visible in Download/Libremote,
+     then SUCCESS. When the connection breaks, the phone counts as arrived only the files confirmed this way, says
+     which file was cut off and which weren't sent, and Try again sends only the rest. Bytes the phone wrote are no
+     proof: they may still have been on their way. With a receiver before 1.0.1, which doesn't offer it, the phone
+     can say only which file it was sending, and Try again sends the whole batch again. A phone before 1.0.1
+     doesn't ask, and gets only the SUCCESS it expects. Updates don't ask for confirmations.
    - **apps**: the answer is `{"apps":[{"package":"…","label":"…","icon":"<PNG size>"},…]}`, then one BINARY packet
      per icon that isn't empty, in the same order: the TV's launchable apps (those with a TV launcher entry, then
      those with only a phone one), each with a 128 px PNG icon.

@@ -21,6 +21,8 @@ class ReceiverClient private constructor(
     val provedSecret: Boolean,
     /** The receiver's versionCode, from its hello; null for a receiver older than 1.0.0, which doesn't say. */
     val receiverVersion: Long?,
+    /** Whether the receiver confirms each file as it is saved (from 1.0.1), so a broken send can say which arrived. */
+    val confirmsEachFile: Boolean,
     private val stallTimeoutMs: Long,
 ) : Closeable {
 
@@ -31,7 +33,10 @@ class ReceiverClient private constructor(
     /** The TLS version and cipher suite in use, such as TLSv1.3 and TLS_AES_128_GCM_SHA256. */
     val tls: String get() = socket.session.let { "${it.protocol} ${it.cipherSuite}" }
 
-    /** Sends [files] to the TV, which saves them in Download/Libremote. */
+    /**
+     * Sends [files] to the TV, which saves them in Download/Libremote. When the connection breaks, throws
+     * TransferLostException, which says how far the batch got.
+     */
     fun send(files: List<OutgoingFile>, progress: SendProgress? = null) = transfer(files, progress, update = false)
 
     /**
@@ -43,7 +48,7 @@ class ReceiverClient private constructor(
     /** A send request; internal so tests can mark any batch as an update. */
     internal fun transfer(files: List<OutgoingFile>, progress: SendProgress?, update: Boolean) {
         if (cancelled) throw CancellationException("Cancelled")
-        FileSender(socket, stallTimeoutMs) { cancelled }.send(files, progress, update)
+        FileSender(socket, stallTimeoutMs) { cancelled }.send(files, progress, update, confirmEach = confirmsEachFile && !update)
     }
 
     /** The TV's launchable apps, with their icons. */
@@ -159,7 +164,7 @@ class ReceiverClient private constructor(
                 socket.outputStream.writeJson(mapOf("request" to "hello", "name" to phoneName))
                 socket.outputStream.flush()
                 val version = (fields["app"] as? String)?.toLongOrNull()?.takeIf { it > 0 }
-                return ReceiverClient(socket, receiverKey, receiverKey != pin, version, stallTimeoutMs)
+                return ReceiverClient(socket, receiverKey, receiverKey != pin, version, fields["arrived"] == "1", stallTimeoutMs)
             } catch (e: Throwable) {
                 runCatching { socket?.close() ?: raw.close() }
                 throw e

@@ -31,7 +31,8 @@ fun interface SendProgress {
  * Sends one batch of files as a "send" request on an open receiver channel ([socket], already verified), then
  * waits for the receiver's answer. The answer is read while sending, so a receiver that turns the files down (no
  * space left, say) stops the transfer at once. [cancelled] is checked between pieces of data; closing [socket]
- * from another thread stops a blocked write.
+ * from another thread stops a blocked write. When the connection breaks, TransferLostException says how far the
+ * batch got.
  */
 internal class FileSender(
     private val socket: Socket,
@@ -42,11 +43,19 @@ internal class FileSender(
     @Volatile private var stalled = false
     @Volatile private var lastActivityMs = 0L
 
-    /** [update] marks the request as a new version of the receiver itself (ReceiverClient.sendUpdate). */
-    fun send(files: List<OutgoingFile>, progress: SendProgress?, update: Boolean = false) {
+    /** Files whose header went out; the last of them may have gone only in part. */
+    private var started = 0
+
+    /**
+     * [update] marks the request as a new version of the receiver itself (ReceiverClient.sendUpdate).
+     * [confirmEach] asks the receiver to confirm each file once it is saved. Receivers from 1.0.1 offer that in
+     * their hello; ask only those, since an older one would never confirm and the phone would wrongly think nothing
+     * arrived.
+     */
+    fun send(files: List<OutgoingFile>, progress: SendProgress?, update: Boolean = false, confirmEach: Boolean = false) {
         require(files.isNotEmpty()) { "Nothing to send" }
         require(files.all { it.size >= 0 }) { "File sizes must be known" }
-        val reply = Reply(socket.getInputStream())
+        val reply = Reply(socket.getInputStream(), confirmEach)
         val watchdog = Watchdog()
         val readTimeout = socket.soTimeout
         try {
@@ -55,7 +64,7 @@ internal class FileSender(
             reply.start()
             watchdog.start()
             try {
-                write(files, progress, update)
+                write(files, progress, update, confirmEach)
             } catch (e: IOException) {
                 // A receiver that gives up says why first; the reader has it, or gets it in a moment.
                 if (e !is FileUnreadableException && !cancelled() && !stalled) reply.refusal(REFUSAL_WAIT_MS)?.let { throw it }
@@ -72,7 +81,11 @@ internal class FileSender(
             when {
                 cancelled() -> throw CancellationException("Cancelled")
                 stalled -> throw TransferStalledException("The receiver stopped taking data")
-                else -> throw e
+                // The receiver's reasons, and a file this phone couldn't read, are told as they are.
+                e is ProtocolException || e is FileUnreadableException -> throw e
+                // Every file was confirmed: they all arrived, only the final answer was lost.
+                confirmEach && reply.arrived == files.size -> return
+                else -> throw TransferLostException(if (confirmEach) reply.arrived else null, started, e)
             }
         } finally {
             watchdog.stop()
@@ -80,11 +93,12 @@ internal class FileSender(
         }
     }
 
-    private fun write(files: List<OutgoingFile>, progress: SendProgress?, update: Boolean) {
+    private fun write(files: List<OutgoingFile>, progress: SendProgress?, update: Boolean, confirmEach: Boolean) {
         val out = socket.getOutputStream()
         val total = files.sumOf { it.size }
         val request = linkedMapOf<String, Any?>("request" to "send", "count" to files.size.toString(), "size" to total.toString())
         if (update) request["update"] = "1"
+        if (confirmEach) request["arrived"] = "1"
         out.writeJson(request)
         val buffer = ByteArray(FilePacket.HEADER_SIZE + FilePacket.CHUNK)
         var sent = 0L
@@ -99,6 +113,7 @@ internal class FileSender(
                     "last_modified" to file.lastModifiedMs.coerceAtLeast(0).toString(),
                 ),
             )
+            started = index + 1
             touch()
             progress?.onProgress(index, sent, total)
             if (file.size == 0L) continue // An empty file has no data packet.
@@ -135,19 +150,32 @@ internal class FileSender(
     }
 
     /**
-     * Reads the receiver's one reply on its own thread, while the files go out. An ERROR before the end closes the
-     * connection, which stops the sending thread at once.
+     * Reads the receiver's reply on its own thread, while the files go out: with [confirmEach], first a
+     * confirmation per file (`{"arrived":"<index>"}`, in order), then SUCCESS or ERROR. An ERROR before the end
+     * closes the connection, which stops the sending thread at once.
      */
-    private inner class Reply(private val input: InputStream) {
+    private inner class Reply(private val input: InputStream, private val confirmEach: Boolean) {
         private val done = CountDownLatch(1)
         @Volatile private var packet: Packet? = null
         @Volatile private var failure: Throwable? = null
 
+        /** How many files the receiver confirmed: the first ones of the batch. */
+        @Volatile var arrived = 0
+            private set
+
         fun start() {
             Thread({
                 try {
-                    packet = input.readPacket(MAX_REPLY) ?: throw EOFException("The receiver closed the connection without confirming the transfer")
-                    if (packet?.type == FilePacket.ERROR) runCatching { socket.close() }
+                    var next: Packet
+                    while (true) {
+                        next = input.readPacket(MAX_REPLY) ?: throw EOFException("The receiver closed the connection without confirming the transfer")
+                        if (!confirmEach || next.type != FilePacket.JSON) break
+                        val index = Json.parseObject(next.text)["arrived"] as? String
+                        if (index != arrived.toString()) throw ProtocolException("Unexpected confirmation from the receiver")
+                        arrived++
+                    }
+                    packet = next
+                    if (next.type == FilePacket.ERROR) runCatching { socket.close() }
                 } catch (e: Throwable) {
                     failure = e
                 } finally {

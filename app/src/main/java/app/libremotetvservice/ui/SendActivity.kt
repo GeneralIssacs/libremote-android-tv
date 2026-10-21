@@ -215,7 +215,7 @@ class SendActivity : Activity() {
             Problem.UNREADABLE -> getString(R.string.send_unreadable_title, state.detail ?: "") to getString(R.string.send_unreadable_text)
             Problem.REFUSED -> getString(R.string.send_refused_title, name) to getString(R.string.send_refused_text, state.detail ?: "")
             Problem.STALLED -> getString(R.string.send_stalled_title, name) to getString(R.string.send_stalled_text)
-            Problem.LOST -> getString(R.string.send_lost_title, name) to getString(R.string.send_lost_text, state.detail ?: "")
+            Problem.LOST -> getString(R.string.send_lost_title, name) to resources.lostText(state.lost, state.detail ?: "")
         }
         title.text = heading
         text.text = body
@@ -226,6 +226,8 @@ class SendActivity : Activity() {
         primary.setText(R.string.pair_retry)
         primary.visibility = if (uris.isEmpty()) View.GONE else View.VISIBLE
         primary.setOnClickListener {
+            // The same files, less those that arrived before a connection broke.
+            uris = sends.lastUris.ifEmpty { uris }
             // Forget the failed batch without reading its Idle state as "cancelled", which closes this screen.
             started = false
             sends.dismiss()

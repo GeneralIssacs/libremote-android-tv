@@ -1,6 +1,7 @@
 package app.libremotetvservice.protocol
 
 import java.io.EOFException
+import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -9,6 +10,14 @@ class TransferRefusedException(message: String) : ProtocolException(message)
 
 /** The receiver stopped reading, or never confirmed the transfer. It may be out of space, or gone. */
 class TransferStalledException(message: String) : ProtocolException(message)
+
+/**
+ * The connection broke during a transfer ([cause] says how). [arrived] files, the first ones, are on the TV: the
+ * receiver confirmed each. It is null when the receiver doesn't confirm each file (before 1.0.1), so which ones
+ * arrived is unknown. [started] is how many files this phone had begun to send, the last of them perhaps in part.
+ */
+class TransferLostException(val arrived: Int?, val started: Int, cause: IOException) :
+    IOException(cause.message ?: cause.javaClass.simpleName, cause)
 
 /**
  * Every packet of Libremote Receiver's channel, in both directions, inside its TLS connection (ReceiverChannel.kt).

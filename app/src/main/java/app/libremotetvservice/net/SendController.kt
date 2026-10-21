@@ -16,6 +16,7 @@ import app.libremotetvservice.protocol.ReceiverDeclinedException
 import app.libremotetvservice.protocol.ReceiverRefusedPhoneException
 import app.libremotetvservice.protocol.ReceiverUnavailableException
 import app.libremotetvservice.protocol.ReceiverUnverifiedException
+import app.libremotetvservice.protocol.TransferLostException
 import app.libremotetvservice.protocol.TransferRefusedException
 import app.libremotetvservice.protocol.TransferStalledException
 import app.libremotetvservice.ui.SendService
@@ -42,7 +43,8 @@ class SendController(private val app: LibremoteApp) {
         data class Confirming(val tv: Tv, val code: String) : State
         data class Sending(val tv: Tv, val file: Int, val names: List<String>, val sent: Long, val total: Long) : State
         data class Sent(val tv: Tv, val count: Int, val total: Long) : State
-        data class Failed(val tv: Tv, val problem: Problem, val detail: String?) : State
+        /** [lost]: for a connection that broke mid-batch, how far it got. */
+        data class Failed(val tv: Tv, val problem: Problem, val detail: String?, val lost: LostBatch? = null) : State
     }
 
     enum class Problem {
@@ -64,7 +66,7 @@ class SendController(private val app: LibremoteApp) {
         REFUSED,
         /** The receiver stopped taking data or never confirmed: often a full TV, or a receiver that was closed. */
         STALLED,
-        /** The connection broke; the detail says how. */
+        /** The connection broke; the detail says how, and the state which files arrived (LostBatch). */
         LOST,
     }
 
@@ -80,7 +82,7 @@ class SendController(private val app: LibremoteApp) {
 
     val busy get() = state is State.Preparing || state is State.OpeningReceiver || state is State.Confirming || state is State.Sending
 
-    /** The files of the latest batch, for Try again from its notification. */
+    /** The files of the latest batch, less those that arrived before its connection broke: what Try again sends. */
     var lastUris: List<Uri> = emptyList()
         private set
 
@@ -168,6 +170,12 @@ class SendController(private val app: LibremoteApp) {
                     e is ReceiverDeclinedException -> State.Failed(tv, Problem.DECLINED, null)
                     e is TransferRefusedException -> State.Failed(tv, Problem.REFUSED, e.message)
                     e is TransferStalledException -> State.Failed(tv, Problem.STALLED, null)
+                    e is TransferLostException -> {
+                        val lost = LostBatch(files.map { it.outgoing.name }, e.arrived, e.started)
+                        // Before the state goes out, so Try again picks up only what didn't arrive.
+                        lastUris = uris.drop(lost.skip)
+                        State.Failed(tv, Problem.LOST, e.message, lost)
+                    }
                     e is SocketTimeoutException || e is NoRouteToHostException || e is UnknownHostException ->
                         State.Failed(tv, Problem.UNREACHABLE, null)
                     else -> State.Failed(tv, Problem.LOST, e.message ?: e.javaClass.simpleName)

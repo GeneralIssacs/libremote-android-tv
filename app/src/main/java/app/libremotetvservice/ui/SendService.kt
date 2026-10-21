@@ -13,6 +13,7 @@ import android.os.IBinder
 import android.text.format.Formatter
 import app.libremotetvservice.R
 import app.libremotetvservice.libremote
+import app.libremotetvservice.net.SendController.Problem
 import app.libremotetvservice.net.SendController.State
 
 /**
@@ -84,7 +85,14 @@ class SendService : Service() {
                 val text = getString(R.string.notification_sent_text, size(state.total))
                 finish(result(resources.getQuantityString(R.plurals.notification_sent_title, state.count, state.count, state.tv.name), text, open = false))
             }
-            is State.Failed -> finish(result(getString(R.string.notification_failed_title, state.tv.name), getString(R.string.notification_failed_text), open = true))
+            is State.Failed -> {
+                // A lost connection says which files arrived; anything else, only that it failed.
+                val summary = state.lost?.takeIf { state.problem == Problem.LOST }?.let(resources::lostSummary).orEmpty()
+                finish(
+                    if (summary.isEmpty()) result(getString(R.string.notification_failed_title, state.tv.name), getString(R.string.notification_failed_text), open = true)
+                    else result(getString(R.string.send_lost_title, state.tv.name), getString(R.string.notification_lost_text, summary), open = true),
+                )
+            }
             // Cancelled.
             is State.Idle -> finish()
         }
@@ -131,6 +139,7 @@ class SendService : Service() {
         builder()
             .setContentTitle(title)
             .setContentText(text)
+            .setStyle(Notification.BigTextStyle().bigText(text))
             .setAutoCancel(true)
             .apply { if (open) setContentIntent(openApp()) }
             .build()

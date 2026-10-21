@@ -28,8 +28,9 @@ class FileReceiver(private val sink: Sink) {
 
     /**
      * Handles the request whose [header] was already read, from [sender], until the last file arrived, then
-     * answers SUCCESS. On failure, answers ERROR with the reason and throws; the connection is then out of step and
-     * must be closed. Closes neither stream.
+     * answers SUCCESS. A request with "arrived":"1" also gets {"arrived":"<index>"} as each file is saved, so a
+     * phone whose connection breaks knows which ones are on the TV. On failure, answers ERROR with the reason and
+     * throws; the connection is then out of step and must be closed. Closes neither stream.
      */
     fun receive(header: Map<String, Any?>, sender: String, input: InputStream, output: OutputStream) {
         var current: String? = null
@@ -39,7 +40,8 @@ class FileReceiver(private val sink: Sink) {
             val total = number(header, "size")?.toLongOrNull()?.takeIf { it >= 0 } ?: throw ProtocolException("Bad transfer size")
             sink.begin(sender, count, total)
             var received = 0L
-            repeat(count) {
+            val confirmEach = header["arrived"] == "1"
+            repeat(count) { index ->
                 val item = readHeader(input)
                 val size = number(item, "size")?.toLongOrNull()?.takeIf { it >= 0 } ?: throw ProtocolException("Bad file size")
                 val type = item["type"] as? String ?: "file"
@@ -63,6 +65,10 @@ class FileReceiver(private val sink: Sink) {
                 stream = null
                 current = null
                 sink.complete(path)
+                if (confirmEach) {
+                    output.writeJson(mapOf("arrived" to index.toString()))
+                    output.flush()
+                }
             }
             output.writePacket(FilePacket.SUCCESS)
             output.flush()

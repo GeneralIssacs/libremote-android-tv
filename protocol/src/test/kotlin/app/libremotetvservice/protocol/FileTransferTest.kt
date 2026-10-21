@@ -104,8 +104,14 @@ class FileTransferTest {
         }
     }
 
-    private fun send(socket: Socket, files: List<OutgoingFile>, stallTimeoutMs: Long = 30_000, cancelled: () -> Boolean = { false }, progress: SendProgress? = null) =
-        socket.use { FileSender(it, stallTimeoutMs, cancelled).send(files, progress) }
+    private fun send(
+        socket: Socket,
+        files: List<OutgoingFile>,
+        stallTimeoutMs: Long = 30_000,
+        cancelled: () -> Boolean = { false },
+        confirmEach: Boolean = false,
+        progress: SendProgress? = null,
+    ) = socket.use { FileSender(it, stallTimeoutMs, cancelled).send(files, progress, confirmEach = confirmEach) }
 
     @Test
     fun packetsUseTheSendFilesToTvFraming() {
@@ -172,6 +178,84 @@ class FileTransferTest {
         assertEquals(listOf("x=1 it's.apk", "b.txt"), sink.complete)
         assertEquals(1_700_000_000_000, sink.modified["x=1 it's.apk"])
         assertArrayEquals(byteArrayOf(1, 0, 0, 0, 0), reply.toByteArray())
+    }
+
+    @Test
+    fun receiverConfirmsEachFileOnlyWhenAsked() {
+        val wire = ByteArrayOutputStream().apply {
+            writePacket(FilePacket.JSON, """{"type":"file","name":"a.txt","size":"2"}""".encodeToByteArray())
+            writePacket(FilePacket.BINARY, "ab".encodeToByteArray())
+            writePacket(FilePacket.JSON, """{"type":"file","name":"empty","size":"0"}""".encodeToByteArray())
+        }.toByteArray()
+        fun replies(header: Map<String, Any?>) = ByteArrayOutputStream().also {
+            FileReceiver(MemorySink()).receive(header, "x", ByteArrayInputStream(wire), it)
+        }.toByteArray().let(::packets)
+        // A phone before 1.0.1 doesn't ask, and gets only the SUCCESS it expects.
+        assertEquals(listOf(FilePacket.SUCCESS), replies(mapOf("count" to "2", "size" to "2")).map { it.type })
+        val confirmed = replies(mapOf("count" to "2", "size" to "2", "arrived" to "1"))
+        assertEquals(listOf(FilePacket.JSON, FilePacket.JSON, FilePacket.SUCCESS), confirmed.map { it.type })
+        assertEquals("""{"arrived":"0"}""", confirmed[0].text)
+        assertEquals("""{"arrived":"1"}""", confirmed[1].text)
+    }
+
+    @Test
+    fun aSenderThatAsksSendsTheMarkAndReadsTheConfirmations() {
+        val sink = MemorySink()
+        val requests = LinkedBlockingQueue<Map<String, Any?>>()
+        val tv = Loopback { socket ->
+            socket.soTimeout = 10_000
+            val header = FileReceiver.readHeader(socket.getInputStream())
+            requests.add(header)
+            FileReceiver(sink).receive(header, "Test phone", socket.getInputStream(), socket.getOutputStream())
+        }
+        tv.use { send(tv.connect(), listOf(file("a.txt", "a".encodeToByteArray()), zeros("b.bin", 300_000)), confirmEach = true) }
+        assertEquals("1", requests.poll(5, TimeUnit.SECONDS)!!["arrived"])
+        assertEquals(listOf("a.txt", "b.bin"), sink.complete)
+    }
+
+    @Test
+    fun everyFileConfirmedCountsAsSentEvenIfTheLastAnswerIsLost() {
+        // The receiver confirmed each file, then the connection broke before its SUCCESS: they all arrived.
+        val tv = Loopback { socket ->
+            socket.soTimeout = 5_000
+            val input = socket.getInputStream()
+            val output = socket.getOutputStream()
+            input.readPacket()
+            repeat(2) { index ->
+                input.readPacket()
+                input.readPacket()
+                output.writeJson(mapOf("arrived" to index.toString()))
+            }
+            output.flush()
+        }
+        tv.use { send(tv.connect(), listOf(file("a.txt", "a".encodeToByteArray()), file("b.txt", "b".encodeToByteArray())), confirmEach = true) }
+    }
+
+    @Test
+    fun aBrokenConnectionSaysHowFarTheTransferGot() {
+        // The receiver confirms the first file, then goes away in the middle of the second.
+        val tv = Loopback { socket ->
+            socket.soTimeout = 5_000
+            val input = socket.getInputStream()
+            val output = socket.getOutputStream()
+            input.readPacket()
+            input.readPacket()
+            input.readPacket()
+            output.writeJson(mapOf("arrived" to "0"))
+            output.flush()
+            input.readPacket()
+            repeat(10) { input.readPacket() }
+            socket.setSoLinger(true, 0) // A reset, as when the TV vanishes.
+        }
+        tv.use {
+            try {
+                send(tv.connect(), listOf(file("a.txt", "a".encodeToByteArray()), zeros("b.bin", 1L shl 30), file("c.txt", "c".encodeToByteArray())), confirmEach = true)
+                fail("Expected a lost connection")
+            } catch (e: TransferLostException) {
+                assertEquals(1, e.arrived)
+                assertEquals(2, e.started)
+            }
+        }
     }
 
     @Test
