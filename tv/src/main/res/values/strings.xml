@@ -22,7 +22,19 @@
     <string name="receive_failed">The last transfer from %1$s stopped: %2$s</string>
     <string name="address">This TV: %1$s · %2$s</string>
     <string name="address_none">This TV isn\'t on a network.</string>
-    <string name="paired_new">A new phone is paired with this receiver. Settings lists paired phones.</string>
+    <string name="paired_new">%1$s can now send files to this TV. Settings lists paired phones.</string>
+
+    <!-- A phone that isn't paired opened the receiver -->
+    <string name="confirm_title">Allow %1$s?</string>
+    <string name="confirm_title_again">Allow %1$s again?</string>
+    <string name="confirm_title_unnamed">Allow a new phone?</string>
+    <string name="confirm_title_unnamed_again">Allow this phone again?</string>
+    <string name="confirm_removed">You removed this phone before.</string>
+    <string name="confirm_text">It wants to send files to this TV, update Libremote Receiver and see the TV\'s apps.</string>
+    <string name="confirm_code">Allow it only if Libremote on your phone shows this code: %1$s</string>
+    <string name="confirm_no_code">Allow it only if you just sent something from Libremote on your phone. It\'s an older version, which shows no code: once allowed, send again if it gave up.</string>
+    <string name="allow">Allow</string>
+    <string name="dont_allow">Don\'t allow</string>
 
     <!-- What arrived -->
     <string name="received">Received</string>
@@ -46,11 +58,11 @@
     <string name="settings_auto_install">Open the installer when an app arrives</string>
     <string name="settings_auto_install_summary">Android still asks before installing.</string>
     <string name="settings_phones">Paired phones</string>
-    <string name="settings_no_phones">No phones yet. A phone pairs by itself when Libremote opens this receiver from it.</string>
+    <string name="settings_no_phones">No phones yet. When Libremote on a phone first opens this receiver, the TV asks whether to allow it.</string>
     <string name="settings_phone_paired">Paired %1$s</string>
     <string name="settings_phone_unnamed">A phone</string>
     <string name="settings_remove_title">Remove %1$s?</string>
-    <string name="settings_remove_text">It can no longer send files here or see this TV\'s apps. Libremote on that phone pairs again the next time it opens this receiver, as long as the phone is still paired with the TV itself.</string>
+    <string name="settings_remove_text">It can no longer send files here, update Libremote Receiver or see this TV\'s apps. If it asks again, the TV asks you first.\n\nIt can still use the TV as a remote and open apps, since it\'s paired with the TV itself. To stop that too, unpair it there: on most TVs, clear the data of Android TV Remote Service in Settings › Apps, which unpairs every phone.</string>
     <string name="remove">Remove</string>
 
     <!-- Opened by a phone for a moment -->

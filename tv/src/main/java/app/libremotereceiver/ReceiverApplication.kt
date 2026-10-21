@@ -2,10 +2,11 @@ package app.libremotereceiver
 
 import android.app.Application
 import android.content.Context
+import app.libremotetvservice.protocol.PhoneRegistry
 
 /** Holds the app-wide pieces: the paired phones, the receiver's identity and settings, and the server. */
 class ReceiverApplication : Application() {
-    lateinit var phones: PairedPhones
+    lateinit var phones: PhoneRegistry
         private set
     lateinit var identity: IdentityStore
         private set
@@ -16,7 +17,7 @@ class ReceiverApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        phones = PairedPhones(this)
+        phones = PhoneRegistry(PairedPhones(this))
         identity = IdentityStore(this)
         settings = ReceiverSettings(this)
         host = ReceiverHost(this)

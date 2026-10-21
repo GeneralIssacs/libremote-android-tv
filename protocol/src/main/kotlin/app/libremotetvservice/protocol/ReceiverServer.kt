@@ -28,9 +28,15 @@ class ReceiverServer(
     private val appVersion: Long? = null,
 ) : Closeable {
 
-    /** The phones this receiver accepts. Called from connection threads. */
+    /** The phones this receiver accepts (PhoneRegistry). Called from connection threads. */
     interface Phones {
         fun isPaired(phoneKey: String): Boolean
+
+        /** [phoneKey] isn't paired, but the TV is asking whether to allow it and it can wait for the answer. */
+        fun isWaiting(phoneKey: String): Boolean = false
+
+        /** Waits up to [timeoutMs] for the user's answer about [phoneKey]: true when it may pair. */
+        fun awaitApproval(phoneKey: String, timeoutMs: Long): Boolean = false
 
         /** The secret from the latest link [phoneKey] sent, if not yet used. It is used once, then forgotten. */
         fun takeSecret(phoneKey: String): ByteArray?
@@ -67,7 +73,7 @@ class ReceiverServer(
     class Phone(val key: String, @Volatile var name: String = "")
 
     private val receiverKey = publicKeyPin(identity.certificate)
-    private val context = ReceiverTls.context(identity, PairedPhonesTrustManager(phones::isPaired))
+    private val context = ReceiverTls.context(identity, PairedPhonesTrustManager { phones.isPaired(it) || phones.isWaiting(it) })
     private val connections = HashMap<Socket, String?>()
     private val transferring = AtomicBoolean(false)
     @Volatile private var server: ServerSocket? = null
@@ -133,16 +139,29 @@ class ReceiverServer(
         raw.tcpNoDelay = true
         raw.soTimeout = HANDSHAKE_TIMEOUT_MS
         val socket = ReceiverTls.wrap(context, raw, client = false, protocols)
-        // The trust manager turns away phones that aren't paired, during the handshake.
+        // The trust manager turns away phones that aren't paired (or waiting to be), during the handshake.
         socket.startHandshake()
         val phone = Phone(ReceiverTls.peerKey(socket))
-        if (!phones.isPaired(phone.key)) return
         synchronized(connections) { connections[raw] = phone.key }
+        if (!phones.isPaired(phone.key) && !(phones.isWaiting(phone.key) && confirm(phone, socket, raw))) return
         try {
             serve(phone, socket, raw)
         } finally {
             handler.disconnected(phone)
         }
+    }
+
+    /**
+     * A new phone, while the TV asks whether to allow it: a first hello says so ("confirm"), so the phone shows the
+     * code and waits; the real hello follows once the user allows it, or an ERROR when they don't. Nothing else is
+     * read or answered meanwhile. True when it was allowed.
+     */
+    private fun confirm(phone: Phone, socket: SSLSocket, raw: Socket): Boolean {
+        socket.outputStream.writeJson(mapOf("receiver" to ReceiverClient.RECEIVER_NAME, "version" to "1", "confirm" to "1"))
+        socket.outputStream.flush()
+        if (phones.awaitApproval(phone.key, CONFIRM_TIMEOUT_MS)) return true
+        refuse(socket, raw, NOT_ALLOWED)
+        return false
     }
 
     private fun serve(phone: Phone, socket: SSLSocket, raw: Socket) {
@@ -250,5 +269,9 @@ class ReceiverServer(
         const val MAX_NAME = 100
         const val BUSY = "This TV is receiving files from another phone. Try again once they have arrived."
         const val ONE_UPDATE = "An update is one APK."
+        const val NOT_ALLOWED = "This phone wasn't allowed on the TV."
+
+        /** The registry gives up sooner (PhoneRegistry.CONFIRM_MS); this only bounds a connection's wait. */
+        const val CONFIRM_TIMEOUT_MS = 120_000L
     }
 }

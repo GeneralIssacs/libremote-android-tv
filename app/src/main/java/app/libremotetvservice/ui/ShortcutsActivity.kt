@@ -23,6 +23,7 @@ import app.libremotetvservice.data.ShortcutLook
 import app.libremotetvservice.data.ShortcutStore
 import app.libremotetvservice.data.Tv
 import app.libremotetvservice.libremote
+import app.libremotetvservice.protocol.ReceiverDeclinedException
 
 /**
  * Settings › Shortcuts: the look of the shortcut row (with a live preview) and, per TV, its apps: reorder the
@@ -42,6 +43,9 @@ class ShortcutsActivity : Activity(), ShortcutStore.Listener {
     private lateinit var sync: Button
     private lateinit var drag: DragReorder
     private var syncing = false
+
+    /** While a sync waits for the TV to allow this phone: the code both show. */
+    private var syncCode: String? = null
 
     /** A change arrived while a row was being dragged: redraw once it is dropped. */
     private var renderPending = false
@@ -223,6 +227,7 @@ class ShortcutsActivity : Activity(), ShortcutStore.Listener {
         hidden.visibility = findViewById<View>(R.id.hiddenTitle).visibility
         val count = app.receivers.apps(tv).size
         syncText.text = when {
+            syncing && syncCode != null -> getString(R.string.shortcuts_sync_confirm, syncCode)
             syncing -> getString(R.string.shortcuts_sync_running)
             count > 0 -> resources.getQuantityString(R.plurals.shortcuts_tv_apps_count, count, count, tv.name)
             else -> getString(R.string.shortcuts_tv_apps_text)
@@ -322,11 +327,16 @@ class ShortcutsActivity : Activity(), ShortcutStore.Listener {
         val tv = tv ?: return
         syncing = true
         renderApps()
-        app.receivers.syncApps(tv) { ok ->
+        app.receivers.syncApps(tv, confirming = { code ->
+            syncCode = code
+            if (!isDestroyed) renderApps()
+        }, cancelled = { isDestroyed }) { error ->
             syncing = false
+            syncCode = null
             if (isDestroyed) return@syncApps
             renderApps()
-            if (!ok) syncText.setText(R.string.shortcuts_sync_failed)
+            if (error is ReceiverDeclinedException) syncText.setText(R.string.shortcuts_sync_declined)
+            else if (error != null) syncText.setText(R.string.shortcuts_sync_failed)
         }
     }
 

@@ -358,7 +358,7 @@ class ReceiverChannelTest {
     fun invitesRoundTripThroughTheLink() {
         val invite = ReceiverInvite.create(phoneKey)
         val link = invite.link()
-        assertTrue(link, link.startsWith("libremote://receive?v=1&k=$phoneKey&s="))
+        assertTrue(link, link.startsWith("libremote://receive?v=2&k=$phoneKey&s="))
         assertTrue(invite.link(syncOnly = true).startsWith("libremote://sync?"))
         val query = link.substringAfter('?').split('&').associate { it.substringBefore('=') to it.substringAfter('=') }
         val parsed = ReceiverInvite.parse(query["k"], query["s"])!!

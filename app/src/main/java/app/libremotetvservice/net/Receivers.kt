@@ -112,14 +112,19 @@ class Receivers(private val app: LibremoteApp) {
 
     /**
      * Fetches the TV's app list and icons through the receiver over the encrypted channel, opening the receiver for
-     * a moment if it isn't open. [done] runs on the main thread: true when the list was updated.
+     * a moment if it isn't open. [done] runs on the main thread: with null when the list was updated, else the reason.
      *
      * Only ever asked for by the user, so it tries even when the TV had no receiver last time: it may have one now.
+     * [confirming] runs on the main thread with the code when the TV asks whether to allow this phone; the wait for
+     * the answer stops once [cancelled] is true (the screen went away).
      */
-    fun syncApps(tv: Tv, done: (Boolean) -> Unit) {
+    fun syncApps(tv: Tv, confirming: (code: String) -> Unit = {}, cancelled: () -> Boolean = { false }, done: (Throwable?) -> Unit) {
         Thread({
-            val updated = runCatching { open(tv, syncOnly = true, retryAbsent = true).use { fetchApps(tv, it) } }.isSuccess
-            main.post { done(updated) }
+            val error = runCatching {
+                open(tv, syncOnly = true, retryAbsent = true, confirming = { code -> main.post { confirming(code) } }, cancelled = cancelled)
+                    .use { fetchApps(tv, it) }
+            }.exceptionOrNull()
+            main.post { done(error) }
         }, "libremote-sync").start()
     }
 
@@ -141,14 +146,24 @@ class Receivers(private val app: LibremoteApp) {
     /**
      * Connects to [tv]'s receiver, first asking the TV to open it (`libremote://receive`, or `libremote://sync` when
      * [syncOnly]) if it isn't listening, isn't paired with this phone yet, or has a new key. Blocks: call it on a
-     * worker thread. [opening] runs on that thread just before the TV is asked.
+     * worker thread. [opening] runs on that thread just before the TV is asked. When the receiver doesn't know this
+     * phone (new, or removed there), the TV asks the user whether to allow it: [confirming] gets the code the TV
+     * shows too, and this waits for the answer while [cancelled] is false.
      *
      * Throws ReceiverMissingException when the TV has no receiver (no link is sent while that is known, unless
      * [retryAbsent]), ReceiverLinkUnavailableException when the TV couldn't be asked, ReceiverUnverifiedException
-     * when the receiver failed verification, ReceiverUnavailableException when it opened but never answered, and
+     * when the receiver failed verification, ReceiverDeclinedException when the user didn't allow this phone on the
+     * TV, ReceiverUnavailableException when it opened but never answered, and
      * other IOExceptions when the TV can't be reached.
      */
-    fun open(tv: Tv, syncOnly: Boolean, retryAbsent: Boolean, opening: () -> Unit = {}): Session {
+    fun open(
+        tv: Tv,
+        syncOnly: Boolean,
+        retryAbsent: Boolean,
+        opening: () -> Unit = {},
+        confirming: (code: String) -> Unit = {},
+        cancelled: () -> Boolean = { false },
+    ): Session {
         val identity = app.identity.get()
         val pin = prefs.getString("pin:${tv.pin}", null)
         val name = phoneName()
@@ -164,7 +179,7 @@ class Receivers(private val app: LibremoteApp) {
             }
         }
         if (state(tv) == ReceiverState.ABSENT && !retryAbsent) throw ReceiverMissingException()
-        val invite = ReceiverInvite.create(publicKeyPin(identity.certificate))
+        val invite = ReceiverInvite.create(publicKeyPin(identity.certificate), name)
         opening()
         when (openLink(tv, invite.link(syncOnly))) {
             RemoteController.LinkResult.OPENED -> Unit
@@ -178,7 +193,7 @@ class Receivers(private val app: LibremoteApp) {
         val deadline = System.nanoTime() + RECEIVER_START_MS * 1_000_000
         while (true) {
             try {
-                val client = ReceiverClient.connect(tv.host, identity, pin, invite.secret, name)
+                val client = ReceiverClient.connect(tv.host, identity, pin, invite.secret, name, confirming = confirming, cancelled = cancelled)
                 if (client.provedSecret) prefs.edit().putString("pin:${tv.pin}", client.receiverKey).apply()
                 present(tv, client)
                 return Session(client, openedForSync = syncOnly)

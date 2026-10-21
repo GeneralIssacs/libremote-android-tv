@@ -1,10 +1,13 @@
 package app.libremotetvservice.protocol
 
 import java.net.Socket
+import java.net.URLEncoder
+import java.nio.ByteBuffer
 import java.security.MessageDigest
 import java.security.SecureRandom
 import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
+import java.util.Locale
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 import javax.net.ssl.SSLContext
@@ -28,13 +31,26 @@ const val RECEIVER_PORT = 6469
 
 /**
  * What a phone puts in the link that opens Libremote Receiver: [phoneKey], the SHA-256 of its certificate's
- * SubjectPublicKeyInfo in lowercase hex (see publicKeyPin), and a fresh random [secret].
+ * SubjectPublicKeyInfo in lowercase hex (see publicKeyPin), a fresh random [secret], and from version 2 the
+ * phone's [name], for the TV to show when it asks whether to allow a new phone.
+ *
+ * [version] 2 also means the phone can wait while the TV asks (see ReceiverServer); a version 1 link (Libremote
+ * before 1.0.1) from a new phone is turned away until the user allows it, and the phone tries again.
  */
-class ReceiverInvite(val phoneKey: String, val secret: ByteArray) {
+class ReceiverInvite(val phoneKey: String, val secret: ByteArray, val name: String? = null, val version: Int = VERSION) {
 
     /** `libremote://receive?…`, which opens the receiver's screen; `libremote://sync?…` opens it only briefly. */
-    fun link(syncOnly: Boolean = false): String =
-        "libremote://${if (syncOnly) SYNC_HOST else RECEIVE_HOST}?$VERSION_PARAM=1&$KEY_PARAM=$phoneKey&$SECRET_PARAM=${secret.toHex()}"
+    fun link(syncOnly: Boolean = false): String {
+        val base = "libremote://${if (syncOnly) SYNC_HOST else RECEIVE_HOST}?$VERSION_PARAM=$version&$KEY_PARAM=$phoneKey&$SECRET_PARAM=${secret.toHex()}"
+        // %20 rather than URLEncoder's +, which not every URI parser reads as a space.
+        return if (name.isNullOrEmpty()) base else "$base&$NAME_PARAM=" + URLEncoder.encode(name, "UTF-8").replace("+", "%20")
+    }
+
+    /** The code both ends show while the TV asks whether to allow this phone (see [ConfirmCode]). */
+    val code: String get() = ConfirmCode.compute(secret, phoneKey)
+
+    /** The TV can make the phone wait while it asks, rather than turn it away. */
+    val canWait: Boolean get() = version >= 2
 
     companion object {
         const val RECEIVE_HOST = "receive"
@@ -42,15 +58,24 @@ class ReceiverInvite(val phoneKey: String, val secret: ByteArray) {
         const val VERSION_PARAM = "v"
         const val KEY_PARAM = "k"
         const val SECRET_PARAM = "s"
+        const val NAME_PARAM = "n"
+        const val VERSION = 2
         private const val SECRET_BYTES = 32
 
-        fun create(phoneKey: String, random: SecureRandom = SecureRandom()) =
-            ReceiverInvite(phoneKey, ByteArray(SECRET_BYTES).also(random::nextBytes))
+        /** Names are shown on the TV; a long one would only overflow the dialog. */
+        const val MAX_NAME = 60
 
-        /** The invite in a link's [key] and [secret] parameters, or null when they don't make a valid one. */
-        fun parse(key: String?, secret: String?): ReceiverInvite? {
+        fun create(phoneKey: String, name: String? = null, random: SecureRandom = SecureRandom()) =
+            ReceiverInvite(phoneKey, ByteArray(SECRET_BYTES).also(random::nextBytes), name?.trim()?.take(MAX_NAME))
+
+        /**
+         * The invite in a link's [key], [secret], [name] (already decoded) and [version] parameters, or null when
+         * they don't make a valid one. A link without a version is version 1.
+         */
+        fun parse(key: String?, secret: String?, name: String? = null, version: String? = null): ReceiverInvite? {
             if (key == null || secret == null || !isKeyHash(key) || secret.length != SECRET_BYTES * 2) return null
-            return ReceiverInvite(key, secret.hexToBytes() ?: return null)
+            val cleanName = name?.filter { !it.isISOControl() }?.trim()?.take(MAX_NAME)?.takeIf { it.isNotEmpty() }
+            return ReceiverInvite(key, secret.hexToBytes() ?: return null, cleanName, version?.toIntOrNull()?.coerceAtLeast(1) ?: 1)
         }
 
         /** A SHA-256 in lowercase hex, as publicKeyPin makes them. */
@@ -67,18 +92,38 @@ internal object ReceiverProof {
     private val LABEL = "libremote receiver proof v1".encodeToByteArray()
 
     fun compute(secret: ByteArray, phoneKey: String, receiverKey: String): ByteArray =
-        Mac.getInstance("HmacSHA256").run {
-            init(SecretKeySpec(secret, "HmacSHA256"))
-            update(LABEL)
-            update(0)
-            update(phoneKey.hexToBytes() ?: throw IllegalArgumentException("Bad key hash"))
-            update(receiverKey.hexToBytes() ?: throw IllegalArgumentException("Bad key hash"))
-            doFinal()
-        }
+        linkMac(secret, LABEL, phoneKey, receiverKey)
 
     fun verify(proof: ByteArray, secret: ByteArray, phoneKey: String, receiverKey: String) =
         MessageDigest.isEqual(proof, compute(secret, phoneKey, receiverKey))
 }
+
+/**
+ * The six-digit code ("123 456") the TV and the phone both show while the TV asks whether to allow a new phone:
+ * HMAC-SHA256 keyed by the link's secret over a label and the phone's key hash. Only the phone that made the link
+ * knows its secret, so a link that another app on the TV forged shows a different code.
+ */
+object ConfirmCode {
+    private val LABEL = "libremote confirm code v1".encodeToByteArray()
+
+    fun compute(secret: ByteArray, phoneKey: String): String {
+        val mac = linkMac(secret, LABEL, phoneKey)
+        // The first four bytes as an unsigned number.
+        val number = (ByteBuffer.wrap(mac).int.toLong() and 0xffffffffL) % 1_000_000
+        // ASCII digits whatever the locale, so both ends show the same; a no-break space, so it never wraps.
+        return String.format(Locale.ROOT, "%06d", number).let { "${it.take(3)}\u00A0${it.drop(3)}" }
+    }
+}
+
+/** HMAC-SHA256 keyed by a link's [secret], over [label], a 0x00, then each key hash (lowercase hex) as bytes. */
+private fun linkMac(secret: ByteArray, label: ByteArray, vararg keyHashes: String): ByteArray =
+    Mac.getInstance("HmacSHA256").run {
+        init(SecretKeySpec(secret, "HmacSHA256"))
+        update(label)
+        update(0)
+        keyHashes.forEach { update(it.hexToBytes() ?: throw IllegalArgumentException("Bad key hash")) }
+        doFinal()
+    }
 
 /**
  * TLS settings for both ends. TLS 1.3 where both have it (Android 10 and later, Java 11 and later); Android 8 and 9
@@ -132,11 +177,14 @@ internal class ReceiverTrustManager : X509TrustManager {
     override fun getAcceptedIssuers(): Array<X509Certificate> = emptyArray()
 }
 
-/** On the receiver: accepts only phones whose key hash [isPaired] says it was given by a link. */
-internal class PairedPhonesTrustManager(private val isPaired: (String) -> Boolean) : X509TrustManager {
+/**
+ * On the receiver: accepts only phones whose key hash [isAccepted] says is paired, or waiting while the TV asks
+ * whether to allow it.
+ */
+internal class PairedPhonesTrustManager(private val isAccepted: (String) -> Boolean) : X509TrustManager {
     override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {
         val certificate = chain?.firstOrNull() ?: throw CertificateException("The phone sent no certificate")
-        if (!isPaired(publicKeyPin(certificate))) throw CertificateException("This phone is not paired with the receiver")
+        if (!isAccepted(publicKeyPin(certificate))) throw CertificateException("This phone is not paired with the receiver")
     }
 
     override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) =
@@ -150,6 +198,9 @@ class ReceiverUnavailableException(cause: Throwable) : ProtocolException("Librem
 
 /** The receiver answered but didn't accept this phone: it was never paired there, or was removed. */
 class ReceiverRefusedPhoneException(cause: Throwable?) : ProtocolException("Libremote Receiver didn't accept this phone", cause)
+
+/** The TV asked whether to allow this phone, and the user said no (or didn't answer in time). */
+class ReceiverDeclinedException(message: String) : ProtocolException(message)
 
 /**
  * The receiver couldn't be verified: its key is not the pinned one and it gave no valid proof of the link's secret.

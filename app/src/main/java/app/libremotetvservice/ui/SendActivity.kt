@@ -110,6 +110,7 @@ class SendActivity : Activity() {
         is State.Idle -> null
         is State.Preparing -> state.tv
         is State.OpeningReceiver -> state.tv
+        is State.Confirming -> state.tv
         is State.Sending -> state.tv
         is State.Sent -> state.tv
         is State.Failed -> state.tv
@@ -159,6 +160,10 @@ class SendActivity : Activity() {
             is State.Idle -> finish()
             is State.Preparing -> showWorking(state.tv, getString(R.string.send_preparing))
             is State.OpeningReceiver -> showWorking(state.tv, getString(R.string.send_opening_receiver))
+            is State.Confirming -> {
+                showWorking(state.tv, getString(R.string.send_confirm_text, state.code))
+                title.text = getString(R.string.send_confirm_title, state.tv.name)
+            }
             is State.Sending -> {
                 showWorking(state.tv, null)
                 text.text = if (state.names.size == 1) state.names[0]
@@ -205,6 +210,7 @@ class SendActivity : Activity() {
             Problem.CANT_OPEN -> getString(R.string.send_cant_open_title, name) to getString(R.string.send_cant_open_text)
             Problem.NOT_LISTENING -> getString(R.string.send_not_listening_title, name) to getString(R.string.send_not_listening_text)
             Problem.UNVERIFIED -> getString(R.string.send_unverified_title, name) to getString(R.string.send_unverified_text)
+            Problem.DECLINED -> getString(R.string.send_declined_title, name) to getString(R.string.send_declined_text)
             Problem.UNREACHABLE -> getString(R.string.problem_unreachable_title, name) to getString(R.string.problem_unreachable_text)
             Problem.UNREADABLE -> getString(R.string.send_unreadable_title, state.detail ?: "") to getString(R.string.send_unreadable_text)
             Problem.REFUSED -> getString(R.string.send_refused_title, name) to getString(R.string.send_refused_text, state.detail ?: "")

@@ -12,6 +12,7 @@ import app.libremotetvservice.data.Tv
 import app.libremotetvservice.protocol.FileUnreadableException
 import app.libremotetvservice.protocol.OutgoingFile
 import app.libremotetvservice.protocol.ReceiverClient
+import app.libremotetvservice.protocol.ReceiverDeclinedException
 import app.libremotetvservice.protocol.ReceiverRefusedPhoneException
 import app.libremotetvservice.protocol.ReceiverUnavailableException
 import app.libremotetvservice.protocol.ReceiverUnverifiedException
@@ -37,6 +38,8 @@ class SendController(private val app: LibremoteApp) {
         data object Idle : State
         data class Preparing(val tv: Tv) : State
         data class OpeningReceiver(val tv: Tv) : State
+        /** The TV asks whether to allow this phone; it shows [code] too. */
+        data class Confirming(val tv: Tv, val code: String) : State
         data class Sending(val tv: Tv, val file: Int, val names: List<String>, val sent: Long, val total: Long) : State
         data class Sent(val tv: Tv, val count: Int, val total: Long) : State
         data class Failed(val tv: Tv, val problem: Problem, val detail: String?) : State
@@ -51,6 +54,8 @@ class SendController(private val app: LibremoteApp) {
         NOT_LISTENING,
         /** The receiver couldn't prove it is the one on the TV; nothing was sent. */
         UNVERIFIED,
+        /** The TV asked whether to allow this phone, and the user didn't. */
+        DECLINED,
         /** The TV doesn't answer at its address. */
         UNREACHABLE,
         /** A file on this phone couldn't be read; the detail is its name. */
@@ -73,7 +78,7 @@ class SendController(private val app: LibremoteApp) {
     var state: State = State.Idle
         private set
 
-    val busy get() = state is State.Preparing || state is State.OpeningReceiver || state is State.Sending
+    val busy get() = state is State.Preparing || state is State.OpeningReceiver || state is State.Confirming || state is State.Sending
 
     /** The files of the latest batch, for Try again from its notification. */
     var lastUris: List<Uri> = emptyList()
@@ -127,7 +132,12 @@ class SendController(private val app: LibremoteApp) {
             val outgoing = files.map { it.outgoing }
             val names = outgoing.map { it.name }
             if (cancelled) throw CancellationException()
-            app.receivers.open(tv, syncOnly = false, retryAbsent) { post(State.OpeningReceiver(tv)) }.use { session ->
+            app.receivers.open(
+                tv, syncOnly = false, retryAbsent,
+                opening = { post(State.OpeningReceiver(tv)) },
+                confirming = { post(State.Confirming(tv, it)) },
+                cancelled = { cancelled },
+            ).use { session ->
                 mine = session.client
                 client = mine
                 if (cancelled) throw CancellationException()
@@ -155,6 +165,7 @@ class SendController(private val app: LibremoteApp) {
                     e is ReceiverLinkUnavailableException -> State.Failed(tv, Problem.CANT_OPEN, null)
                     e is ReceiverUnavailableException || e is ReceiverRefusedPhoneException -> State.Failed(tv, Problem.NOT_LISTENING, null)
                     e is ReceiverUnverifiedException -> State.Failed(tv, Problem.UNVERIFIED, null)
+                    e is ReceiverDeclinedException -> State.Failed(tv, Problem.DECLINED, null)
                     e is TransferRefusedException -> State.Failed(tv, Problem.REFUSED, e.message)
                     e is TransferStalledException -> State.Failed(tv, Problem.STALLED, null)
                     e is SocketTimeoutException || e is NoRouteToHostException || e is UnknownHostException ->

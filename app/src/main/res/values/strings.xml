@@ -127,6 +127,8 @@
     <string name="send_title_sending">Sending to %1$s</string>
     <string name="send_preparing">Getting the files ready…</string>
     <string name="send_opening_receiver">Opening Libremote Receiver on the TV…</string>
+    <string name="send_confirm_title">Allow this phone on %1$s</string>
+    <string name="send_confirm_text">The TV is asking whether to allow this phone. Choose Allow there if it shows the code %1$s.</string>
     <string name="send_current_file">%1$s (%2$d of %3$d)</string>
     <string name="send_progress">%1$s of %2$s</string>
     <string name="send_sent_title">Sent to %1$s</string>
@@ -176,9 +178,12 @@
     <string name="send_not_listening_text">It opened on the TV but didn\'t take the files. If it is an older version, update it on the TV, then try again.</string>
     <string name="send_unverified_title">Couldn\'t verify Libremote Receiver on %1$s</string>
     <string name="send_unverified_text">Libremote couldn\'t confirm that it was talking to the receiver on your TV, so nothing was sent. Try again. If this keeps happening, another device on your network may be answering in its place.</string>
+    <string name="send_declined_title">%1$s didn\'t allow this phone</string>
+    <string name="send_declined_text">Nothing was sent. To try again, send once more, and choose Allow on the TV if it shows the same code as this phone.</string>
     <string name="notification_channel">Sending files</string>
     <string name="notification_channel_description">Progress of files you send to a TV</string>
     <string name="notification_progress">%1$s · %2$d%%</string>
+    <string name="notification_confirm">Allow this phone on the TV: code %1$s</string>
     <plurals name="notification_sent_title">
         <item quantity="one">Sent %1$d file to %2$s</item>
         <item quantity="other">Sent %1$d files to %2$s</item>
@@ -231,6 +236,8 @@
     <string name="shortcuts_sync_hint">Needs Libremote Receiver on the TV</string>
     <string name="shortcuts_sync_running">Asking the TV…</string>
     <string name="shortcuts_sync_failed">Couldn\'t get the list. Install Libremote Receiver on the TV, then try again.</string>
+    <string name="shortcuts_sync_confirm">The TV is asking whether to allow this phone. Choose Allow there if it shows the code %1$s.</string>
+    <string name="shortcuts_sync_declined">The TV didn\'t allow this phone. Try again, and choose Allow on the TV if it shows the same code as this phone.</string>
 
     <!-- Settings › Shortcuts -->
     <string name="shortcuts_title">Shortcuts</string>

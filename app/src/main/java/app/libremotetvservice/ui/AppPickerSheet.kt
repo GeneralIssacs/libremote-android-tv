@@ -10,6 +10,7 @@ import android.widget.TextView
 import app.libremotetvservice.R
 import app.libremotetvservice.data.Tv
 import app.libremotetvservice.libremote
+import app.libremotetvservice.protocol.ReceiverDeclinedException
 
 /**
  * "+" on the shortcut row: adds an app to [tv]'s shortcuts. Offers the apps hidden from the remote, the TV's own
@@ -22,6 +23,10 @@ class AppPickerSheet(private val activity: Activity, private val tv: Tv) {
     private var dialog: Dialog? = null
     private var syncing = false
     private var syncFailed = false
+    private var syncDeclined = false
+
+    /** While a sync waits for the TV to allow this phone: the code both show. */
+    private var syncCode: String? = null
 
     fun show() {
         val content = LinearLayout(activity).apply {
@@ -89,7 +94,9 @@ class AppPickerSheet(private val activity: Activity, private val tv: Tv) {
     /** Asks Libremote Receiver on the TV for its app list. */
     private fun syncRow(): View {
         val subtitle = when {
+            syncing && syncCode != null -> activity.getString(R.string.shortcuts_sync_confirm, syncCode)
             syncing -> activity.getString(R.string.shortcuts_sync_running)
+            syncDeclined -> activity.getString(R.string.shortcuts_sync_declined)
             syncFailed -> activity.getString(R.string.shortcuts_sync_failed)
             else -> activity.getString(R.string.shortcuts_sync_hint)
         }
@@ -106,10 +113,16 @@ class AppPickerSheet(private val activity: Activity, private val tv: Tv) {
     private fun sync() {
         syncing = true
         syncFailed = false
+        syncDeclined = false
         render()
-        app.receivers.syncApps(tv) { ok ->
+        app.receivers.syncApps(tv, confirming = { code ->
+            syncCode = code
+            if (dialog?.isShowing == true) render()
+        }, cancelled = { dialog?.isShowing != true }) { error ->
             syncing = false
-            syncFailed = !ok
+            syncCode = null
+            syncFailed = error != null
+            syncDeclined = error is ReceiverDeclinedException
             if (dialog?.isShowing == true) render()
         }
     }

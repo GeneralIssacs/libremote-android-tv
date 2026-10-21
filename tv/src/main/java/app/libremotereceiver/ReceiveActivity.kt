@@ -33,6 +33,14 @@ class ReceiveActivity : Activity(), ReceiverHost.Listener {
 
     private val main = Handler(Looper.getMainLooper())
     private val host get() = receiver.host
+    private val confirm by lazy {
+        ConfirmPhone(this) {
+            if (firstQuestionsLater) {
+                firstQuestionsLater = false
+                firstQuestions()
+            }
+        }
+    }
     private lateinit var title: TextView
     private lateinit var text: TextView
     private lateinit var progress: ProgressBar
@@ -67,12 +75,20 @@ class ReceiveActivity : Activity(), ReceiverHost.Listener {
         list = findViewById(R.id.list)
         findViewById<View>(R.id.settings).setOnClickListener { SettingsDialog(this).show() }
         allow.setOnClickListener { askStorage() }
-        pair(intent)
         if (savedInstanceState == null) {
+            // Not again when the screen is recreated: that link was dealt with.
+            pair(intent)
             sayIfUpdated()
-            firstQuestions()
+            // Not over the question about a new phone, which the phone is waiting on: after it.
+            if (confirm.showing) firstQuestionsLater = true else firstQuestions()
+        } else {
+            // Recreated while the TV was asking: ask again, rather than leave the phone waiting for nothing.
+            receiver.phones.pending()?.let(confirm::ask)
         }
     }
+
+    /** The first-run questions wait for the answer about a new phone. */
+    private var firstQuestionsLater = false
 
     /** After a phone updated the receiver: the first screen of the new version says so. */
     private fun sayIfUpdated() {
@@ -114,9 +130,14 @@ class ReceiveActivity : Activity(), ReceiverHost.Listener {
         super.onStop()
     }
 
-    /** A link from a phone pairs it, if it isn't already. */
+    /** A link from a phone that isn't paired asks the user whether to allow it. */
     private fun pair(intent: Intent?) {
-        if (receiver.phones.accept(intent?.data)) Toast.makeText(this, R.string.paired_new, Toast.LENGTH_LONG).show()
+        receiver.phones.accept(intent?.data)?.let(confirm::ask)
+    }
+
+    override fun onDestroy() {
+        confirm.dismiss()
+        super.onDestroy()
     }
 
     // The first time the receiver opens: storage on Android 8 and 9, then the installer question. Both are dialogs

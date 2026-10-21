@@ -13,6 +13,7 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.Switch
 import android.widget.TextView
+import app.libremotetvservice.protocol.PhoneRegistry
 
 /**
  * The receiver's settings, over its screen: a dialog rather than a screen of its own, so the receiver keeps
@@ -68,7 +69,7 @@ class SettingsDialog(private val activity: ReceiveActivity) {
         list.getChildAt(1).requestFocus()
     }
 
-    private fun confirmRemove(phone: PairedPhones.Phone, name: String) {
+    private fun confirmRemove(phone: PhoneRegistry.Phone, name: String) {
         AlertDialog.Builder(activity)
             .setTitle(activity.getString(R.string.settings_remove_title, name))
             .setMessage(R.string.settings_remove_text)

@@ -10,6 +10,7 @@ import app.libremotetvservice.net.ReceiverLinkUnavailableException
 import app.libremotetvservice.net.ReceiverMissingException
 import app.libremotetvservice.protocol.OutgoingFile
 import app.libremotetvservice.protocol.ReceiverClient
+import app.libremotetvservice.protocol.ReceiverDeclinedException
 import app.libremotetvservice.protocol.ReceiverRefusedPhoneException
 import app.libremotetvservice.protocol.ReceiverUnavailableException
 import app.libremotetvservice.protocol.ReceiverUnverifiedException
@@ -66,9 +67,12 @@ internal class ReceiverUpdate(
                 Updater.verify(activity, file, Updater.RECEIVER_PACKAGE, current)
                 if (cancelled.get()) return@thread
                 val apk = file
-                app.receivers.open(tv, syncOnly = false, retryAbsent = false) {
-                    post { progress.step(activity.getString(R.string.receiver_update_step_open, tv.name)) }
-                }.use { session ->
+                app.receivers.open(
+                    tv, syncOnly = false, retryAbsent = false,
+                    opening = { post { progress.step(activity.getString(R.string.receiver_update_step_open, tv.name)) } },
+                    confirming = { code -> post { progress.step(activity.getString(R.string.send_confirm_text, code)) } },
+                    cancelled = cancelled::get,
+                ).use { session ->
                     client = session.client
                     if (cancelled.get()) return@thread
                     post { progress.step(activity.getString(R.string.receiver_update_step_send, tv.name)) }
@@ -117,6 +121,7 @@ internal class ReceiverUpdate(
         is ReceiverLinkUnavailableException -> activity.getString(R.string.send_cant_open_text)
         is ReceiverUnavailableException, is ReceiverRefusedPhoneException -> activity.getString(R.string.receiver_update_no_answer, tv.name)
         is ReceiverUnverifiedException -> activity.getString(R.string.send_unverified_text)
+        is ReceiverDeclinedException -> activity.getString(R.string.send_declined_text)
         is TransferRefusedException -> activity.getString(R.string.send_refused_text, e.message)
         // The download's own checks say what was wrong; anything else is the network's doing.
         is UpdateCheckException -> Updater.reason(e)

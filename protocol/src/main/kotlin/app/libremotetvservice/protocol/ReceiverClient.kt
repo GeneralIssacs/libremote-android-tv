@@ -97,8 +97,12 @@ class ReceiverClient private constructor(
          * prove [secret], the one in the link that opened it. Nothing is sent to a receiver that fails this.
          * [phoneName] is shown on the TV, which lists this phone under that name.
          *
+         * When the TV asks whether to allow this phone (a new one, which sent a version 2 link with [secret]),
+         * [confirming] gets the code to show, and connect waits for the answer, checking [cancelled] every second.
+         *
          * Throws ReceiverUnavailableException when nothing receives there, ReceiverRefusedPhoneException when
-         * the receiver doesn't accept this phone, and ReceiverUnverifiedException when it can't be verified.
+         * the receiver doesn't accept this phone, ReceiverDeclinedException when the user didn't allow it on the
+         * TV, ReceiverUnverifiedException when it can't be verified, and CancellationException.
          */
         fun connect(
             host: String,
@@ -109,6 +113,8 @@ class ReceiverClient private constructor(
             port: Int = RECEIVER_PORT,
             timeoutMs: Int = 5_000,
             stallTimeoutMs: Long = 30_000,
+            confirming: (code: String) -> Unit = {},
+            cancelled: () -> Boolean = { false },
         ): ReceiverClient {
             val raw = try {
                 Tls.open(host, port, timeoutMs)
@@ -133,8 +139,19 @@ class ReceiverClient private constructor(
                 }
                 val receiverKey = ReceiverTls.peerKey(socket)
                 val phoneKey = publicKeyPin(identity.certificate)
-                val fields = Json.parseObject(hello.text)
+                var fields = Json.parseObject(hello.text)
                 if (fields["receiver"] != RECEIVER_NAME) throw ProtocolException("Not Libremote Receiver")
+                if (fields["confirm"] == "1") {
+                    // The TV asks about this phone, but this connection made no link (it tried the pin): it has no
+                    // code to show. Turned away, the caller sends a link, whose code the TV then shows.
+                    // The raw socket first: the receiver isn't reading now, and a TLS close would wait for its reply.
+                    if (secret == null) {
+                        runCatching { raw.close() }
+                        throw ReceiverRefusedPhoneException(null)
+                    }
+                    confirming(ConfirmCode.compute(secret, phoneKey))
+                    fields = awaitAnswer(socket, cancelled)
+                }
                 val proof = (fields["proof"] as? String)?.hexToBytes()
                 val proved = secret != null && proof != null && ReceiverProof.verify(proof, secret, phoneKey, receiverKey)
                 if (receiverKey != pin && !proved) throw ReceiverUnverifiedException(pinMismatch = pin != null)
@@ -149,7 +166,33 @@ class ReceiverClient private constructor(
             }
         }
 
+        /** After a "confirm" hello: the real hello once the user allowed this phone on the TV. */
+        private fun awaitAnswer(socket: SSLSocket, cancelled: () -> Boolean): Map<String, Any?> {
+            // Each packet is one TLS record, so a timeout between them loses nothing.
+            socket.soTimeout = POLL_MS
+            val deadline = System.nanoTime() + CONFIRM_WAIT_MS * 1_000_000
+            while (true) {
+                if (cancelled()) throw CancellationException("Cancelled")
+                val reply = try {
+                    socket.inputStream.readPacket(MAX_REPLY) ?: throw EOFException("The receiver closed the connection")
+                } catch (e: SocketTimeoutException) {
+                    if (System.nanoTime() > deadline) throw ReceiverDeclinedException("The TV didn't answer")
+                    continue
+                }
+                if (reply.type == FilePacket.ERROR) throw ReceiverDeclinedException(reply.text)
+                if (reply.type != FilePacket.JSON) throw ProtocolException("Expected the receiver's hello, got packet ${reply.type}")
+                return Json.parseObject(reply.text).also {
+                    if (it["receiver"] != RECEIVER_NAME) throw ProtocolException("Not Libremote Receiver")
+                }
+            }
+        }
+
         internal const val RECEIVER_NAME = "Libremote Receiver"
+
+        private const val POLL_MS = 1_000
+
+        /** A little longer than the receiver asks (PhoneRegistry.CONFIRM_MS), so its answer arrives first. */
+        private const val CONFIRM_WAIT_MS = 70_000L
 
         /** Replies are short; the app list is a few hundred bytes per app. */
         private const val MAX_REPLY = 64 * 1024

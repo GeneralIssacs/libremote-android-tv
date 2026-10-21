@@ -69,7 +69,7 @@ class SendService : Service() {
 
     private fun update(state: State) {
         when (state) {
-            is State.Preparing, is State.OpeningReceiver, is State.Sending -> {
+            is State.Preparing, is State.OpeningReceiver, is State.Confirming, is State.Sending -> {
                 // The system drops updates that come too fast: show each step, each new percent at most four times
                 // a second, and otherwise once a second.
                 val step = (state as? State.Sending)?.let { "${it.file}:${percent(it)}" } ?: state.javaClass.simpleName
@@ -104,6 +104,7 @@ class SendService : Service() {
         val (tv, text, percent) = when (state) {
             is State.Preparing -> Triple(state.tv, getString(R.string.send_preparing), null)
             is State.OpeningReceiver -> Triple(state.tv, getString(R.string.send_opening_receiver), null)
+            is State.Confirming -> Triple(state.tv, getString(R.string.notification_confirm, state.code), null)
             is State.Sending -> {
                 val name = if (state.names.size == 1) state.names[0]
                 else getString(R.string.send_current_file, state.names[state.file], state.file + 1, state.names.size)
