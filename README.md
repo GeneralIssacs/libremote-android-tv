@@ -31,10 +31,13 @@ A small companion app for the TV, needed only for some things:
 - **Opening any app from a shortcut** on TVs without the Play Store. With the Play Store, shortcuts work without it.
 - **Real names and icons** for the TV's apps in Libremote's shortcut settings.
 
-It accepts only your phones: a phone pairs with it by itself, through its paired connection to the TV, and
-everything between them is encrypted with both ends authenticated. It listens only while its screen is open, or for
-a moment when Libremote opens an app or fetches the app list. It needs Android TV 8.0 or later.
-[SENDFILES.md](SENDFILES.md) explains the pairing, the encryption and what they protect against.
+It accepts only your phones: the first time Libremote opens it from a phone, the TV asks whether to allow that
+phone, showing a code your phone shows too. A phone you remove in its Settings stays removed until you allow it
+again. Everything between them is encrypted with both ends authenticated. It listens only while its screen is open,
+or for a moment when Libremote opens an app or fetches the app list. It needs Android TV 8.0 or later.
+[SENDFILES.md](SENDFILES.md) explains the pairing, the encryption, what they protect against, and
+[what pairing covers](SENDFILES.md#in-short-what-pairing-with-the-receiver-covers) (opening apps goes through the TV's
+own pairing instead).
 
 ## Install
 

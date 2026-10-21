@@ -13,9 +13,27 @@ framing, inside TLS.
 
 ## Libremote Receiver's channel
 
-Code: `protocol/…/ReceiverChannel.kt` (the link, the proof, TLS settings), `ReceiverClient.kt` (phone),
-`ReceiverServer.kt` (TV), tested by `ReceiverChannelTest`; in the apps, `app/…/net/Receivers.kt` and
-`SendController.kt`, and `tv/…/ReceiverHost.kt` and `PairedPhones.kt`.
+Code: `protocol/…/ReceiverChannel.kt` (the link, the proof, the code, TLS settings), `ReceiverClient.kt` (phone),
+`ReceiverServer.kt` (TV), `PhoneRegistry.kt` (which phones the TV accepts, and what it asks), tested by
+`ReceiverChannelTest` and `PhoneConfirmationTest`; in the apps, `app/…/net/Receivers.kt` and `SendController.kt`,
+and `tv/…/ReceiverHost.kt`, `PairedPhones.kt` and `ConfirmPhone.kt`.
+
+### In short: what pairing with the receiver covers
+
+- **Sending files, updating the receiver and the app list** take a phone paired with the receiver: its TLS key is
+  on the receiver's list. A phone gets there only when the user allows it on the TV, which shows a code the phone
+  shows too ([Allowing a new phone](#allowing-a-new-phone)). A phone removed in the receiver's Settings stays out
+  until the user allows it again there.
+- **Updates of the receiver** must also be the same package, a higher version, and signed by every certificate the
+  installed receiver is signed with (a newer certificate may be added, for key rotation). Android's installer asks
+  on the TV before installing ([Updating the receiver](#updating-the-receiver)).
+- **Opening apps** (`libremote://launch`) doesn't involve the receiver's pairing at all, by design: the link comes
+  through the TV's remote service, and any app on the TV may start another app anyway. Removing a phone from the
+  receiver doesn't stop it; unpairing it from the TV's remote service does (on most TVs, clearing that service's
+  data in Settings › Apps, which unpairs every phone).
+- **Interrupted transfers** don't resume: a file shows up only once it arrived whole, a partial one is deleted, and
+  whatever a transfer cut short by the TV's end left behind (the receiver killed, the TV unplugged) is removed the
+  next time the receiver starts (only what is older than that start, so a transfer under way is left alone).
 
 ### Threat model
 
@@ -29,21 +47,27 @@ device, someone who redirects traffic with ARP or DNS spoofing or a rogue access
 **What it trusts:**
 
 - **The phone's pairing with the TV.** Only a phone paired with the TV's remote service (with the code the TV
-  shows) can send the TV an app link, and the link is what pairs a phone with the receiver. This is the root of
-  trust; nothing else needs a code.
+  shows) can send the TV an app link through it, and the link is what pairs a phone with the receiver.
+- **The person at the TV.** The receiver doesn't pair a phone it doesn't know just because a link arrived: any app
+  on the TV can start that link. The TV asks first, with a code that only the phone that made the link can show
+  ([Allowing a new phone](#allowing-a-new-phone)).
 - **The TV itself:** Android on it, Google's remote service, and the apps installed on it. The link travels from
   the phone over its encrypted remote connection, which is pinned to the TV's key, then through the remote service
   and Android's activity manager to the receiver.
 
 **Limits, accepted on purpose:**
 
-- Any app on the TV can start the receiver's link with a key of its choosing, and so pair a phone. Such an app can
-  already write to Downloads, start apps and list launchable ones by itself. A new phone is announced on the TV
-  (a toast) and listed in the receiver's Settings.
+- Any app on the TV can start the receiver's link with a key of its choosing, and a name of its choosing, which
+  makes the TV ask. It can't make the TV show the code the user's phone shows (it doesn't know that link's secret),
+  and while one question is open, links from other new keys are ignored. Such an app could keep the TV asking, which
+  is a nuisance and nothing more; it can already write to Downloads, start apps and list launchable ones by itself.
 - An app on the TV that registered the same link could get a phone's invitation instead of the receiver (alone,
   or chosen by the user from Android's chooser) and then act as the receiver for that phone.
-- A phone removed in the receiver's Settings pairs again the next time Libremote on it opens the receiver, as long
-  as it is still paired with the TV itself. Unpairing it from the TV shuts it out for good.
+- A phone removed in the receiver's Settings stays removed: its next link only makes the TV ask again, saying it
+  was removed before. It can still use the TV as a remote and open apps through it until it is unpaired from the
+  TV itself.
+- Libremote before 1.0.1 shows no code and can't wait for an answer: the TV asks all the same (saying the phone
+  shows no code), turns that phone away until the user allows it, and the phone's retries, or its next send, get in.
 - The secret passes through Google's remote service. It is useful only to someone who can also intercept that
   phone's next connection on the local network, and only for that connection. The key hash in the link is not
   secret: the remote service already has the phone's whole certificate.
@@ -60,20 +84,55 @@ phone hasn't pinned, the phone sends an app link over its remote connection (APP
 package; see PROTOCOL.md, App links):
 
 ```
-libremote://receive?v=1&k=<phone key hash>&s=<secret>
-libremote://sync?v=1&k=<phone key hash>&s=<secret>
+libremote://receive?v=2&k=<phone key hash>&s=<secret>&n=<phone name>
+libremote://sync?v=2&k=<phone key hash>&s=<secret>&n=<phone name>
 ```
 
+- `v` is the link's version: 2 from Libremote 1.0.1, which can wait while the TV asks; 1 (or none) before.
 - `k` is the SHA-256 of the SubjectPublicKeyInfo of the phone's certificate, in lowercase hex. It is the identity
   the phone already uses with the TV's remote service (`ClientIdentity`, `IdentityStore`): RSA-2048, self-signed,
   named `libremote/<16 hex digits>`.
 - `s` is 32 random bytes in hex, new for every link.
+- `n` is the phone's device name, percent-encoded, at most 60 characters, for the TV to show when it asks. Anyone
+  can write any name there; the code is what identifies the phone.
 - `receive` opens the receiver's screen; `sync` opens it only for a moment (see Opening the receiver).
 
-The receiver adds `k` to its paired phones, with the date (the name comes later, over the channel), and keeps `s`
-for that phone in memory, replacing any earlier one. Secrets are never written to disk on either side. On Android
+For a phone it has paired, the receiver keeps `s` in memory for that phone's next connection, replacing any earlier
+one. For any other key it pairs nothing yet, and asks ([Allowing a new phone](#allowing-a-new-phone)). Secrets are
+never written to disk on either side. On Android
 14 the activity manager logs the link as `libremote://receive/...` (**verified**); older versions may log all of
 it, in logs only the system and adb can read.
+
+### Allowing a new phone
+
+When a link comes from a key the receiver hasn't paired (a new phone, or one the user removed), the TV asks:
+"Allow <name>?", or "Allow <name> again?" with "You removed this phone before.", over whatever screen the link
+opened, with **Don't allow** focused. It shows a six-digit code:
+
+```
+code = first 4 bytes, as an unsigned big-endian number, of
+       HMAC-SHA256(key = secret, "libremote confirm code v1" ‖ 0x00 ‖ SHA-256(phone SPKI))
+       mod 1 000 000, written as "123 456" (with a no-break space)
+```
+
+The phone computes the same code from its own link and shows it ("Allow this phone on <TV>: choose Allow there if it
+shows the code 123 456"). Only the phone that made the link knows its secret, so a link forged by another app shows
+a code the user's phone doesn't. The answer:
+
+- **Allow** pairs the key (with the name from the link, until the phone gives its own), and clears a removed mark.
+- **Don't allow**, Back, leaving the screen, or 60 s without an answer pair nothing. A removed phone stays marked.
+- One question at a time: while it is open, links from other new keys are ignored, and a new link from the same
+  phone replaces the question (and its code); a connection waiting on the old question waits for the answer to
+  the new one. An answer counts only for the question it was given to.
+
+On the channel ([Requests](#requests)): while the TV asks about a phone that sent a version 2 link, the receiver
+accepts that phone's key in the handshake, and sends a first hello `{"receiver":"Libremote Receiver","version":"1",
+"confirm":"1"}` with no proof. It then reads nothing until the user answers: on Allow it sends the usual hello,
+with the proof; otherwise an ERROR ("This phone wasn't allowed on the TV.") and it closes the connection. The phone
+shows the code when it gets the first hello, waits up to 70 s (checking every second whether the user cancelled),
+and reports an ERROR as "the TV didn't allow this phone". A connection that brought no secret (the phone tried its pin) can't show a
+code: it hangs up on a "confirm" hello and sends a link instead. A phone with a version 1 link is turned away in the
+handshake until the user allows it, as any unpaired phone.
 
 ### Transport
 
@@ -88,8 +147,9 @@ it, in logs only the system and adb can read.
 ### How each end knows the other
 
 **The receiver accepts only paired phones.** It requires a client certificate, and accepts it only if the SHA-256
-of its SubjectPublicKeyInfo is among its paired phones. Any other phone is turned away during the handshake (under
-TLS 1.3 the phone notices at its first read). **Verified** on the Android TV 14 emulator: `certificate_unknown`.
+of its SubjectPublicKeyInfo is among its paired phones, or is the phone the TV is asking about right now (which then
+gets nothing but the "confirm" hello until the user allows it). Any other phone is turned away during the handshake
+(under TLS 1.3 the phone notices at its first read). **Verified** on the Android TV 14 emulator: `certificate_unknown`.
 
 **The phone accepts the receiver by its pin, or by a proof.** During the handshake the phone takes any server
 certificate; before it sends anything, it checks it:
@@ -135,7 +195,8 @@ little-endian int32, a type byte (0 SUCCESS, 1 ERROR, 2 JSON, 3 BINARY), the pay
 
 1. Receiver to phone, right after the handshake:
    `{"receiver":"Libremote Receiver","version":"1","app":"<versionCode>","proof":"<hex>"}`, the proof only when the
-   receiver has a secret for this phone. `version` is the channel's version; `app` is the receiver's own
+   receiver has a secret for this phone. (For a phone the TV is asking about, a "confirm" hello comes first; see
+   [Allowing a new phone](#allowing-a-new-phone).) `version` is the channel's version; `app` is the receiver's own
    versionCode (MAJOR × 10000 + MINOR × 100 + PATCH, so 1.0.0 is `10000`), which the phone uses to offer updates
    ([Updating the receiver](#updating-the-receiver)). Receivers before 1.0.0 don't send `app`: the phone then treats
    the version as unknown and offers no update.
@@ -179,14 +240,17 @@ little-endian int32, a type byte (0 SUCCESS, 1 ERROR, 2 JSON, 3 BINARY), the pay
 
 ### On the TV
 
-- **Paired phones:** key hash, name and pairing date, in the receiver's private storage. Removing one in Settings
-  also drops its connections.
+- **Paired phones:** key hash, name and pairing date, in the receiver's private storage, and the key hashes of the
+  phones the user removed. Removing one in Settings also drops its connections.
 - **The receiver's identity:** like the phone's, RSA-2048 and self-signed, its private key encrypted with an
   AndroidKeyStore AES key, in no-backup storage.
 - **Files:** Download/Libremote, keeping the sender's folders; names can't leave the folder (`safeTransferPath`).
   From Android 10 they go through MediaStore and show up once complete. On Android 8 and 9 (storage permission,
   asked when the receiver opens) they are written under a hidden temporary name, renamed when complete and added to
-  the media index, and other apps open them through the receiver's own ContentProvider. Partial files are deleted.
+  the media index, and other apps open them through the receiver's own ContentProvider. Partial files are deleted;
+  when the receiver itself was cut off mid-transfer, it removes the leftovers (hidden `.part` files on Android 8
+  and 9, entries still marked pending from Android 10, a partial update in its cache) the next time it starts
+  (only what is older than that start).
 - **Installing:** an APK opens the system installer, which asks before installing anything (and, the first time,
   asks to let the receiver install apps). With "Open the installer when an app arrives" on, a batch that arrived
   whole with an APK opens it by itself.
