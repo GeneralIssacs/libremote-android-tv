@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.TargetApi
 import android.app.Activity
 import android.content.ActivityNotFoundException
+import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
@@ -12,6 +13,7 @@ import android.content.pm.PackageManager
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.os.Environment
 import android.os.StatFs
 import android.provider.MediaStore
@@ -90,6 +92,48 @@ object Downloads {
             .take(limit)
             .map { it.toReceived(context) }
             .toList()
+    }
+
+    /**
+     * Removes what a transfer cut short by the receiver's end left behind (killed, crashed, the TV unplugged): the
+     * hidden temporary files on Android 8 and 9, and on Android 10 and later the entries still marked pending, which
+     * Android would otherwise keep for a week. Only what is older than [beforeMs] (when the receiver started), so a
+     * transfer running now is never touched.
+     */
+    fun sweep(context: Context, beforeMs: Long) {
+        if (direct) {
+            if (!canSave(context)) return
+            folder().walkTopDown()
+                .filter { it.isFile && it.name.startsWith('.') && it.name.endsWith(".part") && it.lastModified() < beforeMs }
+                .forEach { it.delete() }
+        } else {
+            sweepMediaStore(context, beforeMs)
+        }
+    }
+
+    @TargetApi(29)
+    private fun sweepMediaStore(context: Context, beforeMs: Long) {
+        val selection = "${MediaStore.Downloads.RELATIVE_PATH} LIKE ? AND ${MediaStore.Downloads.IS_PENDING} = 1 AND " +
+            "${MediaStore.Downloads.DATE_ADDED} < ?"
+        // DATE_ADDED is in seconds.
+        val args = arrayOf("$FOLDER/%", (beforeMs / 1000).toString())
+        val resolver = context.contentResolver
+        if (Build.VERSION.SDK_INT >= 30) {
+            // Pending entries are left out of queries unless asked for; the app sees only its own.
+            val query = Bundle().apply {
+                putString(ContentResolver.QUERY_ARG_SQL_SELECTION, selection)
+                putStringArray(ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS, args)
+                putInt(MediaStore.QUERY_ARG_MATCH_PENDING, MediaStore.MATCH_INCLUDE)
+            }
+            val ids = mutableListOf<Long>()
+            resolver.query(MediaStore.Downloads.EXTERNAL_CONTENT_URI, arrayOf(MediaStore.Downloads._ID), query, null)?.use { cursor ->
+                while (cursor.moveToNext()) ids += cursor.getLong(0)
+            }
+            ids.forEach { runCatching { resolver.delete(ContentUris.withAppendedId(MediaStore.Downloads.EXTERNAL_CONTENT_URI, it), null, null) } }
+        } else {
+            @Suppress("DEPRECATION") // Android 10's way to include pending entries.
+            runCatching { resolver.delete(MediaStore.setIncludePending(MediaStore.Downloads.EXTERNAL_CONTENT_URI), selection, args) }
+        }
     }
 
     private fun File.toReceived(context: Context) =

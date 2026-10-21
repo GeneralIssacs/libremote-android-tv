@@ -24,9 +24,13 @@ object SelfUpdate {
     /** The update that arrived last; the installer reads it through [FilesProvider]. */
     fun file(context: Context) = File(File(context.cacheDir, "update"), NAME)
 
-    /** At start: drops an update that is installed now (or older), so the cache doesn't keep it. */
-    fun cleanUp(context: Context) {
+    /**
+     * At start: drops an update that is installed now (or older), so the cache doesn't keep it, and one that never
+     * arrived whole: only if older than [beforeMs] (when the receiver started), so not one arriving now.
+     */
+    fun cleanUp(context: Context, beforeMs: Long) {
         val apk = file(context)
+        File(apk.parentFile, "$NAME.part").takeIf { it.lastModified() < beforeMs }?.delete()
         if (!apk.isFile) return
         val info = archiveInfo(context, apk)
         if (info == null || versionCode(info) <= versionCode(installed(context))) apk.delete()

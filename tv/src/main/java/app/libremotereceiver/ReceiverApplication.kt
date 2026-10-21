@@ -21,8 +21,6 @@ class ReceiverApplication : Application() {
         identity = IdentityStore(this)
         settings = ReceiverSettings(this)
         host = ReceiverHost(this)
-        // An update a phone sent and that is installed now: the cache needn't keep it.
-        Thread({ SelfUpdate.cleanUp(this) }, "receiver-clean-up").start()
     }
 }
 

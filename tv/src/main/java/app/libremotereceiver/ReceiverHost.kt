@@ -44,6 +44,16 @@ class ReceiverHost(private val app: ReceiverApplication) {
     /** Only touched on [worker]. */
     private var server: ReceiverServer? = null
 
+    init {
+        // What a transfer cut short last time left behind: only what is older than this start, so a transfer that
+        // begins meanwhile is left alone, and the server needn't wait for it.
+        val started = System.currentTimeMillis()
+        Thread({
+            runCatching { SelfUpdate.cleanUp(app, started) }
+            runCatching { Downloads.sweep(app, started) }
+        }, "receiver-sweep").start()
+    }
+
     /** Null while starting or stopped. */
     var listening: Boolean? = null
         private set
